@@ -111,6 +111,14 @@ RUN APT_INSTALL="apt-get install -y --no-install-recommends" && \
         && \
 
 # ==================================================================
+# tensorflow
+# ------------------------------------------------------------------
+
+    $PIP_INSTALL \
+        tensorflow-gpu \
+        && \
+
+# ==================================================================
 # jupyterlab
 # ------------------------------------------------------------------
 
@@ -126,15 +134,6 @@ RUN APT_INSTALL="apt-get install -y --no-install-recommends" && \
     apt-get clean && \
     apt-get autoremove && \
     rm -rf /var/lib/apt/lists/* /tmp/* ~/*
-
-# ==================================================================
-# tensorflow
-# ------------------------------------------------------------------
-
-RUN pip install --quiet --no-cache-dir \
-    'tensorflow==2.3.0' && \
-    fix-permissions "${CONDA_DIR}" && \
-    fix-permissions "/home/${NB_USER}"
 
 EXPOSE 6006 8888
 
