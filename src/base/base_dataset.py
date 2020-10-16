@@ -3,9 +3,13 @@ from torch.utils.data import DataLoader
 
 class BaseADDataset(ABC):
 
-    def __init__(self):
+    def __init__(self, root: str):
         super().__init__()
-        
+        self.root = root # root path to data
+
+        self.n_classes = 2
+        self.train_set = None
+        self.test_set = None
 
     @abstractmethod
     def loaders(self, batch_size: int, shuffle_train=True,
