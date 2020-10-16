@@ -19,7 +19,7 @@ class LGDataset(Dataset):
         root = os.path.expanduser(root)
 
         self.root = Path(root)
-        self.dataset_name = datset_name
+        self.dataset_name = dataset_name
         self.train = train
         self.folder_path = self.root / self.dataset_name
 
