@@ -1,5 +1,6 @@
 from pathlib import Path
 from torch.utils.data import Dataset
+from sklearn.model_selection import train_test_split
 
 import os
 import torch
@@ -24,13 +25,17 @@ class LGDataset(Dataset):
 
         # Read all data
         X, y, stage, degc = read_data()
+        
+        X_train, X_test, y_train, y_test = train_test_split(X, y,
+                                                            test_size=0.4,
+                                                            random_state=random_state)
 
         if self.train:
-            self.data = torch.tensor(X_train_scaled, dtype=torch.float32)
-            self.targets = torch.tensor(y_train, dtype=torch.int64)
+            self.data = torch.tensor(X_train.to_numpy())
+            self.targets = torch.tensor(y_train.to_numpy())
         else:
-            self.data = torch.tensor(X_test_scaled, dtype=torch.float32)
-            self.targets = torch.tensor(y_test, dtype=torch.int64)
+            self.data = torch.tensor(X_test.to_numpy())
+            self.targets = torch.tensor(y_test.to_numpy())
 
     def __getitem__(self, index):
         """
@@ -41,9 +46,9 @@ class LGDataset(Dataset):
         Returns:
             tuple: (sample, target, index)
         """
+        sample, target = self.data[index], int(self.targets[index])
 
-
-        return sample, target
+        return sample, target, index
 
     def __len__(self):
         return len(self.data)
@@ -68,9 +73,10 @@ class LGDataset(Dataset):
         # read files with numpy
         data = [np.genfromtxt(file, delimiter='\t', skip_header==1) for file in files]
         data = np.concatenate(data)
-        length = len(data)
+
+        # mapping stage information into int 
         
-        X = data[:][4:]
+        X = data[:][1:]
         y = data[:][0]
         stage = data[:][2]
         degc = data[:][3]
