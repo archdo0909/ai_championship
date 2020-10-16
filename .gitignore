@@ -1,0 +1,7 @@
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# Sample files
+src/base/sample.py
+data/lg_train
