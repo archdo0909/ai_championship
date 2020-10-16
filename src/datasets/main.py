@@ -1,4 +1,4 @@
-from .champ import champ_dataset
+from .champ import LGADDataset
 
 def load_dataset(dataset_name, data_path, normal_class, random_state=None):
 
@@ -9,7 +9,7 @@ def load_dataset(dataset_name, data_path, normal_class, random_state=None):
     dataset = None
 
     if dataset_name == 'ai_champ':
-        dataset = champ_dataset(root=data_path,
+        dataset = LGADDataset(root=data_path,
                                 normal_class=normal_class,
                                 )
     

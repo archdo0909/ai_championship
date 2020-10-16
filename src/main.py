@@ -9,7 +9,7 @@ def main(dataset_name, net_name, log_path, data_path, load_model):
         log_path ([type]): [description]
         data_path ([type]): [description]
         load_model ([type]): [description]
-    """
+    """q
     log_file = log_path + '/log.txt'
 
     dataset = load_dataset(dataset_name, data_path, 
