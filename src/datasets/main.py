@@ -1,4 +1,4 @@
-from .ai_champ import champ_dataset
+from .champ import champ_dataset
 
 def load_dataset(dataset_name, data_path, normal_class, random_state=None):
 

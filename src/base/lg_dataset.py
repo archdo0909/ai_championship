@@ -71,7 +71,7 @@ class LGDataset(Dataset):
         # stage = df['stage']
         # degc = df['degc']
         # read files with numpy
-        data = [np.genfromtxt(file, delimiter='\t', skip_header==1) for file in files]
+        data = [np.genfromtxt(file, delimiter='\t', skip_header=1) for file in files]
         data = np.concatenate(data)
 
         # mapping stage information into int 
