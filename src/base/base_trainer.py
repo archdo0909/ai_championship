@@ -15,5 +15,3 @@ class BaseTrainer(ABC):
     @abstractmethod
     def train(self, dataset, net: BaseNet) -> BaseNet:
         pass
-
-    

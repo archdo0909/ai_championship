@@ -76,10 +76,10 @@ class LGDataset(Dataset):
 
         # mapping stage information into int 
         
-        X = data[:][1:]
-        y = data[:][0]
-        stage = data[:][2]
-        degc = data[:][3]
+        X = data[:, 1:]
+        y = data[:, 0]
+        stage = data[:, 2]
+        degc = data[:, 3]
 
         return X, y, stage, degc
         
