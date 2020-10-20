@@ -102,6 +102,7 @@ class LGDataset(Dataset):
         f.close()
 
         target = int(self.tagets[index])
+        sample = torch.tensor(sample, dtype=torch.float64)
 
         return sample, target, index
 
