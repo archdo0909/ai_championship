@@ -29,7 +29,7 @@ class MyMNIST(MNIST):
         img, target = self.data[index], ing(self.targets[index])
 
         # 8-bit pixels, black and white
-        img = Image.fromarray(img.numpy(), mode='L
+        img = Image.fromarray(img.numpy(), mode='L')
         
         if self.transform is not None:
             img = self.transform(img)

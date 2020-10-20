@@ -26,7 +26,7 @@ class LGDataset(Dataset):
         
         # catch label data
         fld = self.label_path.glob("**/*")
-        files = fld[0]
+        file = list(fld)[0]
 
         """load label data
 
@@ -49,7 +49,7 @@ class LGDataset(Dataset):
         data = np.array(data)
 
         X = data[:, 1:]
-        y = data[:, 0]
+        y = np.int32(data[:, 0])
 
 
         """
@@ -66,10 +66,10 @@ class LGDataset(Dataset):
         
         if self.train:
             self.data = X_train
-            self.targets = torch.tensor(y_train.to_numpy())
+            self.targets = torch.tensor(y_train)
         else:
             self.data = X_train
-            self.targets = torch.tensor(y_train.to_numpy())
+            self.targets = torch.tensor(y_train)
 
     def __getitem__(self, index):
         """
