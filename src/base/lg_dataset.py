@@ -137,7 +137,7 @@ class LGDataset(Dataset):
 
         return X, y, stage, degc
     
-    def spec_array(arr):
+    def spec_array(self, arr):
         plt.axis('off')
         plt.xticks([]), plt.yticks([])
         plt.use_sticky_edges = True
