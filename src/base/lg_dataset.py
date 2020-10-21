@@ -88,7 +88,7 @@ class LGDataset(Dataset):
         file_num = self.data[index][-1]
         
         # search Hz data
-        target_fname = str(measuretime[:8]) + base_file_name + str(file_num) + ".txt"
+        target_fname = str(measuretime[:6]) + base_file_name + str(file_num) + ".txt"
 
         f = open(self.folder_path / target_fname, 'r')
         while 1:
