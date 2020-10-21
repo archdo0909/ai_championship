@@ -23,7 +23,7 @@ class AETrainer(BaseTrainer):
         self.test_auc = None
         self.test_time = None
 
-     def train(self, dataset: BaseADDataset, ae_net: BaseNet):
+    def train(self, dataset: BaseADDataset, ae_net: BaseNet):
         logger = logging.getLogger()
 
         # Get train data loader

@@ -11,7 +11,7 @@ def load_dataset(dataset_name, data_path, normal_class, known_outlier_class, n_k
     assert dataset_name in implemented_datasets
 
     dataset = None
-    if dataset_name in ('lg'):
+    if dataset_name in ('lg_train'):
         dataset = LGADDataset(root=data_path,
                                 dataset_name=dataset_name,
                                 n_known_outlier_classes=n_known_outlier_classes,

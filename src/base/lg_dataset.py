@@ -33,7 +33,7 @@ class LGDataset(Dataset):
 
         input: "label_data.txt"
         column name:
-            [label] [measure time] [stage] [temperature]
+            [label] [measure time] [stage] [temperature] [file_num]
             
         X contains [measure time] [stage] [temperature] [file_num]
         y contains [label]

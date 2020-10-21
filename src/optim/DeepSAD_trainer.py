@@ -36,7 +36,7 @@ class DeepSADTrainer(BaseTrainer):
         logger = logging.getLogger()
 
         # Get train data loader
-        train_loader, _ = dataset.loaders(batch_size=self.batch_size, num_wokers=self.n_jobs_dataloader)
+        train_loader, _ = dataset.loaders(batch_size=self.batch_size, num_workers=self.n_jobs_dataloader)
         
         # Set device for network
         net = net.to(self.device)
