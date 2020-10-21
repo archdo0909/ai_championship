@@ -77,7 +77,7 @@ def main(dataset_name, net_name, xp_path, data_path, load_config, load_model, et
         torch.set_num_threads(num_threads)
     logger.info(f"Computation device: {device}")
     logger.info(f"Number of threads: {num_threads}")
-    logger.info(f"Number of dataloader worders: {n_jobs_dataloader}")
+    logger.info(f"Number of dataloader workers: {n_jobs_dataloader}")
 
     # Load data
     # Load data

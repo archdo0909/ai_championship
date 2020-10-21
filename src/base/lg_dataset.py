@@ -100,6 +100,7 @@ class LGDataset(Dataset):
         f.close()
 
         target = int(self.targets[index])
+        sample = list(map(float, sample))
         img_array = self.spec_array(sample)
         sample = torch.tensor(img_array, dtype=torch.float64)
 
