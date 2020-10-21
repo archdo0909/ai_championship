@@ -6,13 +6,19 @@ import torch
 
 class LGADDataset(BaseADDataset):
 
-    def __init__(self, root: str, dataset_name, random_state=None):
+    def __init__(self, root: str, dataset_name: str, n_known_outlier_classes: int = 0, ratio_known_normal: float = 0.0,
+                 ratio_known_outlier: float = 0.0, ratio_pollution: float = 0.0, random_state=None):
         super().__init__(root)
 
         # Define normal and outlier classes 
         self.n_classes = 2 # 0: normal, 1: outlier
         self.normal_classes = (0,)
         self.outlier_classes = (1,)
+
+        if n_known_outlier_classes == 0:
+            self.known_outlier_classes = ()
+        else:
+            self.known_outlier_classes = (1,)        
 
         self.train_set = LGDataset(root=self.root, dataset_name=dataset_name,
                                    train=True, random_state=random_state)

@@ -1,4 +1,4 @@
-from .champ import LGADDataset
+from .lg import LGADDataset
 from .mnist import MNIST_Dataset
 
 def load_dataset(dataset_name, data_path, random_state=None):

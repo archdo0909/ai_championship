@@ -1,12 +1,13 @@
 from pathlib import Path
 from torch.utils.data import Dataset
 from sklearn.model_selection import train_test_split
+from matplotlib import pyplot as plt
 
 import os
 import torch
 
 import numpy as np
-import pandas as pd
+
 
 class LGDataset(Dataset):
 
@@ -87,12 +88,9 @@ class LGDataset(Dataset):
         file_num = self.data[index][-1]
         
         # search Hz data
-        target_fname = str(measuretime[:8]) \
-                       + base_file_name \
-                       + str(file_num) \
-                       + ".txt"
+        target_fname = str(measuretime[:8]) + base_file_name + str(file_num) + ".txt"
 
-        f = open(self.folder_path/target_fname, 'r')
+        f = open(self.folder_path / target_fname, 'r')
         while 1:
             line = f.readline()
             if not line:
@@ -102,7 +100,8 @@ class LGDataset(Dataset):
         f.close()
 
         target = int(self.tagets[index])
-        sample = torch.tensor(sample, dtype=torch.float64)
+        img_array = self.spec_array(sample)
+        sample = torch.tensor(img_array, dtype=torch.float64)
 
         return sample, target, index
 
@@ -131,12 +130,27 @@ class LGDataset(Dataset):
         data = np.concatenate(data)
 
         # mapping stage information into int 
-        
         X = data[:, 1:]
         y = data[:, 0]
         stage = data[:, 2]
         degc = data[:, 3]
 
         return X, y, stage, degc
-        
+    
+    def spec_array(arr):
+        plt.axis('off')
+        plt.xticks([]), plt.yticks([])
+        plt.use_sticky_edges = True
+        plt.margins(0)
+        plt.rcParams["figure.figsize"] = (2,2)
+        plt.specgram(list(arr), NFFT=10000, Fs=10, noverlap=5, detrend='mean', mode='psd')
+        fig = plt.figure(1, tight_layout=True)
+        fig.canvas.draw()
+        fig.tight_layout(pad=0)
+     
+        # Now we can save it to a numpy array.
+        data = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8, sep='')
+        data = data.reshape(fig.canvas.get_width_height()[::-1] + (3,))
+    
+        return data
 
