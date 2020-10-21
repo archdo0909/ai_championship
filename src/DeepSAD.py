@@ -52,11 +52,11 @@ class DeepSAD(object):
             'test_auc': None,
             'test_time': None
         }    
-    
+
     def set_network(self, net_name):
         """Builds the neural network phi."""
         self.net_name = net_name
-        self.net = build_network(net_name)   
+        self.net = build_network(net_name)
 
     def train(self, dataset: BaseADDataset, optimizer_name: str = 'adam', lr: float = 0.001, n_epochs: int = 50,
               lr_milestones: tuple = (), batch_size: int = 128, weight_decay: float = 1e-6, device: str = 'cuda',
@@ -113,3 +113,49 @@ class DeepSAD(object):
         # Initialize Deep SAD network weights from pre-trained encoder
         self.init_network_weights_from_pretraining()
 
+    def init_network_weights_from_pretraining(self):
+        """Initialize the Deep SAD network weights from the encoder weights of the pretraining autoencoder."""
+
+        net_dict = self.net.state_dict()
+        ae_net_dict = self.ae_net.state_dict()
+
+        # Filter out decoder network keys
+        ae_net_dict = {k: v for k, v in ae_net_dict.items() if k in net_dict}
+        # Overwrite values in the existing state_dict
+        net_dict.update(ae_net_dict)
+        # Load the new state_dict
+        self.net.load_state_dict(net_dict)
+
+    def save_model(self, export_model, save_ae=True):
+        """Save Deep SAD model to export_model."""
+
+        net_dict = self.net.state_dict()
+        ae_net_dict = self.ae_net.state_dict() if save_ae else None
+
+        torch.save({'c': self.c,
+                    'net_dict': net_dict,
+                    'ae_net_dict': ae_net_dict}, export_model)
+
+    def load_model(self, model_path, load_ae=False, map_location='cpu'):
+        """Load Deep SAD model from model_path."""
+
+        model_dict = torch.load(model_path, map_location=map_location)
+
+        self.c = model_dict['c']
+        self.net.load_state_dict(model_dict['net_dict'])
+
+        # load autoencoder parameters if specified
+        if load_ae:
+            if self.ae_net is None:
+                self.ae_net = build_autoencoder(self.net_name)
+            self.ae_net.load_state_dict(model_dict['ae_net_dict'])
+
+    def save_results(self, export_json):
+        """Save results dict to a JSON-file."""
+        with open(export_json, 'w') as fp:
+            json.dump(self.results, fp)
+
+    def save_ae_results(self, export_json):
+        """Save autoencoder results dict to a JSON-file."""
+        with open(export_json, 'w') as fp:
+            json.dump(self.ae_results, fp)

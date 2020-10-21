@@ -3,8 +3,10 @@ import logging
 import random
 import numpy as np
 
+from utils.config import Config
 from DeepSAD import DeepSAD
 from datasets.main import load_dataset
+
 
 def main(dataset_name, net_name, xp_path, data_path, load_config, load_model, eta,
          ratio_known_normal, ratio_known_outlier, ratio_pollution, device, seed,
