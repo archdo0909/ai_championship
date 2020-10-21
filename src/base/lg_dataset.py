@@ -99,7 +99,7 @@ class LGDataset(Dataset):
                 sample = line.strip().split('\t')[5:]
         f.close()
 
-        target = int(self.tagets[index])
+        target = int(self.targets[index])
         img_array = self.spec_array(sample)
         sample = torch.tensor(img_array, dtype=torch.float64)
 
