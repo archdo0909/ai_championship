@@ -10,11 +10,12 @@ import torch
 import torch.optim as optim
 import numpy as np
 
+
 class DeepSADTrainer(BaseTrainer):
 
-    def __init__(self, c, eta: float, optimizer_name: str = 'adam', lr: float=0.001, n_epochs: int=150,
-                 lr_milestones: tuple=(), batch_size: int=128, weight_decay: float=1e-6, device: str='cuda',
-                 n_jobs_dataloader: int=0):
+    def __init__(self, c, eta: float, optimizer_name: str = 'adam', lr: float = 0.001, n_epochs: int = 150,
+                 lr_milestones: tuple = (), batch_size: int = 128, weight_decay: float = 1e-6, device: str = 'cuda',
+                 n_jobs_dataloader: int = 0):
         super().__init__(optimizer_name, lr, n_epochs, lr_milestones, batch_size, weight_decay, device,
                          n_jobs_dataloader)
         
@@ -164,7 +165,7 @@ class DeepSADTrainer(BaseTrainer):
                 n_samples += outputs.shape[0]
                 c += torch.sum(outputs, dim=0)
 
-        c /= n_samplesd
+        c /= n_samples
 
         # If c_i is too close to 0, set to +-eps. Reason: a zero unit can be trivially matched with zero weights.
         c[(abs(c) < eps) & (c < 0)] = -eps
