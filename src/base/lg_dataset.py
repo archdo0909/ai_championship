@@ -139,11 +139,11 @@ class LGDataset(Dataset):
         return X, y, stage, degc
     
     def spec_array(self, arr):
+        plt.rcParams["figure.figsize"] = (2 ,2)
         plt.axis('off')
         plt.xticks([]), plt.yticks([])
         plt.use_sticky_edges = True
         plt.margins(0)
-        plt.rcParams["figure.figsize"] = (2,2)
         plt.specgram(list(arr), NFFT=10000, Fs=10, noverlap=5, detrend='mean', mode='psd')
         fig = plt.figure(1, tight_layout=True)
         fig.canvas.draw()
