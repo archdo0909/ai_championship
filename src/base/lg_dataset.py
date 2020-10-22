@@ -107,7 +107,6 @@ class LGDataset(Dataset):
         
         target = int(self.targets[index])
         sample = list(map(float, sample))
-        print(f'sample size : {len(sample)}')
         img_array = self.spec_array(sample)
         sample = torch.tensor(img_array, dtype=torch.float32)
         semi_targets = int(self.semi_targets[index])

@@ -36,29 +36,29 @@ def main(dataset_name, net_name, xp_path, data_path, load_config, load_model, et
     logger.addHandler(file_handler)
 
     # Print paths
-    # logger.info(f"Log file is {log_file}")
-    # logger.info(f"Data path is {data_path}")
-    # logger.info(f"Export path is {xp_path}")
+    logger.info(f"Log file is {log_file}")
+    logger.info(f"Data path is {data_path}")
+    logger.info(f"Export path is {xp_path}")
 
     # Print experimental setup
-    # logger.info(f"Dataset: {dataset_name}")
-    # logger.info(f"Normal class: {normal_class}")
-    # logger.info('Ratio of labeled normal train samples: %.2f' % ratio_known_normal)
-    # logger.info('Ratio of labeled anomalous samples: %.2f' % ratio_known_outlier)
-    # logger.info('Pollution ratio of unlabeled train data: %.2f' % ratio_pollution)
+    logger.info(f"Dataset: {dataset_name}")
+    logger.info(f"Normal class: {normal_class}")
+    logger.info('Ratio of labeled normal train samples: %.2f' % ratio_known_normal)
+    logger.info('Ratio of labeled anomalous samples: %.2f' % ratio_known_outlier)
+    logger.info('Pollution ratio of unlabeled train data: %.2f' % ratio_pollution)
     if n_known_outlier_classes == 1:
         logger.info('Known anomaly class: %d' % known_outlier_class)
     else:
         logger.info('Number of known anomaly classes: %d' % n_known_outlier_classes)
-    # logger.info('Network: %s' % net_name)
+    logger.info('Network: %s' % net_name)
 
     # If specified, load experiment config from JSON-file
     if load_config:
         cfg.load_config(import_json=load_config)
-        # logger.info('Loaded configuration from %s.' % load_config)
+        logger.info('Loaded configuration from %s.' % load_config)
 
     # Print model configuration
-    # logger.info('Eta-parameter: %.2f' % cfg.settings['eta'])
+    logger.info('Eta-parameter: %.2f' % cfg.settings['eta'])
 
     # Set seed
     if cfg.settings['seed'] != -1:
@@ -67,7 +67,7 @@ def main(dataset_name, net_name, xp_path, data_path, load_config, load_model, et
         torch.manual_seed(cfg.settings['seed'])
         torch.cuda.manual_seed(cfg.settings['seed'])
         torch.backends.cudnn.deterministic = True
-        # logger.info('Set seed to %d.' % cfg.settings['seed'])
+        logger.info('Set seed to %d.' % cfg.settings['seed'])
 
     # Default device to 'cpu' if cuda is not available
     if not torch.cuda.is_available():
@@ -75,11 +75,10 @@ def main(dataset_name, net_name, xp_path, data_path, load_config, load_model, et
     # Set the number of threads used for parallelizing CPU operations
     if num_threads > 0:
         torch.set_num_threads(num_threads)
-    # logger.info(f"Computation device: {device}")
-    # logger.info(f"Number of threads: {num_threads}")
-    # logger.info(f"Number of dataloader worders: {n_jobs_dataloader}")
+    logger.info(f"Computation device: {device}")
+    logger.info(f"Number of threads: {num_threads}")
+    logger.info(f"Number of dataloader worders: {n_jobs_dataloader}")
 
-    # Load data
     # Load data
     dataset = load_dataset(dataset_name, data_path, normal_class, known_outlier_class, n_known_outlier_classes,
                            ratio_known_normal, ratio_known_outlier, ratio_pollution,
@@ -96,17 +95,17 @@ def main(dataset_name, net_name, xp_path, data_path, load_config, load_model, et
     # If specified, load Deep SAD model (center c, network weights, and possibly autoencoder weights)
     if load_model:
         deepSAD.load_model(model_path=load_model, load_ae=True, map_location=device)
-        # logger.info('Loading model from %s.' % load_model)    
+        logger.info('Loading model from %s.' % load_model)    
 
     # logger.info('Pretraining: %s' % pretrain)
     if pretrain:
         # Log pretraining details
-        # logger.info('Pretraining optimizer: %s' % cfg.settings['ae_optimizer_name'])
-        # logger.info('Pretraining learning rate: %g' % cfg.settings['ae_lr'])
-        # logger.info('Pretraining epochs: %d' % cfg.settings['ae_n_epochs'])
-        # logger.info('Pretraining learning rate scheduler milestones: %s' % (cfg.settings['ae_lr_milestone'],))
-        # logger.info('Pretraining batch size: %d' % cfg.settings['ae_batch_size'])
-        # logger.info('Pretraining weight decay: %g' % cfg.settings['ae_weight_decay'])
+        logger.info('Pretraining optimizer: %s' % cfg.settings['ae_optimizer_name'])
+        logger.info('Pretraining learning rate: %g' % cfg.settings['ae_lr'])
+        logger.info('Pretraining epochs: %d' % cfg.settings['ae_n_epochs'])
+        logger.info('Pretraining learning rate scheduler milestones: %s' % (cfg.settings['ae_lr_milestone'],))
+        logger.info('Pretraining batch size: %d' % cfg.settings['ae_batch_size'])
+        logger.info('Pretraining weight decay: %g' % cfg.settings['ae_weight_decay'])
 
         # Pretrain model on dataset (via autoencoder)
         deepSAD.pretrain(dataset,
@@ -123,12 +122,12 @@ def main(dataset_name, net_name, xp_path, data_path, load_config, load_model, et
         deepSAD.save_ae_results(export_json=xp_path + '/ae_results.json')
 
     # Log training details
-    # logger.info('Training optimizer: %s' % cfg.settings['optimizer_name'])
-    # logger.info('Training learning rate: %g' % cfg.settings['lr'])
-    # logger.info('Training epochs: %d' % cfg.settings['n_epochs'])
-    # logger.info('Training learning rate scheduler milestones: %s' % (cfg.settings['lr_milestone'],))
-    # logger.info('Training batch size: %d' % cfg.settings['batch_size'])
-    # logger.info('Training weight decay: %g' % cfg.settings['weight_decay'])
+    logger.info('Training optimizer: %s' % cfg.settings['optimizer_name'])
+    logger.info('Training learning rate: %g' % cfg.settings['lr'])
+    logger.info('Training epochs: %d' % cfg.settings['n_epochs'])
+    logger.info('Training learning rate scheduler milestones: %s' % (cfg.settings['lr_milestone'],))
+    logger.info('Training batch size: %d' % cfg.settings['batch_size'])
+    logger.info('Training weight decay: %g' % cfg.settings['weight_decay'])
 
     # Train model on dataset
     deepSAD.train(dataset,
@@ -160,7 +159,7 @@ if __name__ == "__main__":
 
     # dataset_name='lg_train',
 
-    main(dataset_name='lg_train_sample',
+    main(dataset_name='lg_train',
          net_name='lg_LeNet',
          xp_path='/workspace/eddie/ai_championship/log',
          data_path='/workspace/eddie/ai_championship/data',
@@ -176,7 +175,7 @@ if __name__ == "__main__":
          lr=0.001,
          n_epochs=150,
          lr_milestone=[50],
-         batch_size=5,
+         batch_size=64,
          weight_decay=0.5e-6,
          pretrain=False,
          ae_optimizer_name=None,
@@ -189,5 +188,4 @@ if __name__ == "__main__":
          n_jobs_dataloader=4,
          normal_class=0,
          known_outlier_class=1,
-         n_known_outlier_classes=0
-        )
+         n_known_outlier_classes=0)
