@@ -77,7 +77,7 @@ def main(dataset_name, net_name, xp_path, data_path, load_config, load_model, et
         torch.set_num_threads(num_threads)
     logger.info(f"Computation device: {device}")
     logger.info(f"Number of threads: {num_threads}")
-    logger.info(f"Number of dataloader workers: {n_jobs_dataloader}")
+    logger.info(f"Number of dataloader worders: {n_jobs_dataloader}")
 
     # Load data
     # Load data
@@ -154,3 +154,38 @@ def main(dataset_name, net_name, xp_path, data_path, load_config, load_model, et
     indices, labels, scores = np.array(indices), np.array(labels), np.array(scores)
     idx_all_sorted = indices[np.argsort(scores)]  # from lowest to highest score
     idx_normal_sorted = indices[labels == 0][np.argsort(scores[labels == 0])]  # from lowest to highest score
+
+
+if __name__ == "__main__":
+
+    main(dataset_name='lg_train',
+         net_name='lg_LeNet',
+         xp_path='/workspace/eddie/ai_championship/log',
+         data_path='/workspace/eddie/ai_championship/data',
+         load_config=None,
+         load_model=None,
+         eta=1,
+         ratio_known_normal=0.01,
+         ratio_known_outlier=0.01,
+         ratio_pollution=0.1,
+         device=None,
+         seed=1514394,
+         optimizer_name='Adam',
+         lr=0.001,
+         n_epochs=150,
+         lr_milestone=[50],
+         batch_size=128,
+         weight_decay=0.5e-6,
+         pretrain=False,
+         ae_optimizer_name=None,
+         ae_lr=0.0001,
+         ae_n_epochs=150,
+         ae_lr_milestone=[50],
+         ae_batch_size=128,
+         ae_weight_decay=0.5e-3,
+         num_threads=4,
+         n_jobs_dataloader=2,
+         normal_class=0,
+         known_outlier_class=1,
+         n_known_outlier_classes=1
+     )
