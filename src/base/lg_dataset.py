@@ -102,15 +102,15 @@ class LGDataset(Dataset):
             if not line:
                 break
             if measuretime in line: 
-                sample = line.strip().split('\t')[5:]
+                sample = line.strip().split('\t')[4:]
         f.close()
         
         target = int(self.targets[index])
         sample = list(map(float, sample))
         print(f'sample size : {len(sample)}')
         img_array = self.spec_array(sample)
-        sample = torch.tensor(img_array, dtype=torch.float64)
-        int(self.semi_targets[index])
+        sample = torch.tensor(img_array, dtype=torch.float32)
+        semi_targets = int(self.semi_targets[index])
 
         return sample, target, semi_targets, index
 
@@ -140,7 +140,7 @@ class LGDataset(Dataset):
         return X, y, stage, degc
     
     def spec_array(self, arr):
-        plt.rcParams["figure.figsize"] = (2 ,2)
+        plt.rcParams["figure.figsize"] = (1.44, 1.44)
         plt.axis('off')
         plt.xticks([]), plt.yticks([])
         plt.use_sticky_edges = True
@@ -153,8 +153,6 @@ class LGDataset(Dataset):
         # Now we can save it to a numpy array.
         data = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8, sep='')
         data = data.reshape((3,) + fig.canvas.get_width_height()[::-1])
-        
-        print(data.shape)
 
         return data
 
