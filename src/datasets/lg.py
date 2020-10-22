@@ -1,6 +1,7 @@
 from torch.utils.data import DataLoader, Subset
 from base.base_dataset import BaseADDataset
 from base.lg_dataset import LGDataset
+from .preprocessing import create_semisupervised_setting
 
 import torch
 
@@ -20,11 +21,22 @@ class LGADDataset(BaseADDataset):
         else:
             self.known_outlier_classes = (1,)        
 
-        self.train_set = LGDataset(root=self.root, dataset_name=dataset_name,
-                                   train=True, random_state=random_state)
+        train_set = LGDataset(root=self.root, dataset_name=dataset_name,
+                              train=True, random_state=random_state)
 
-        self.test_set = LGDataset(root=self.root, dataset_name=dataset_name,
-                                  train=True, random_state=random_state)
+        # Create semi-supervised setting
+        idx, _, semi_targets = create_semisupervised_setting(train_set.targets.cpu().data.numpy(),
+                                                             self.normal_classes,
+                                                             self.outlier_classes,
+                                                             self.known_outlier_classes,
+                                                             ratio_known_normal,
+                                                             ratio_known_outlier,
+                                                             ratio_pollution)
+
+        train_set.semi_targets[idx] = torch.tensor(semi_targets, dtype=torch.int32)
+
+        self.train_set = Subset(train_set, idx)
+        self.test_set = LGDataset(root=self.root, dataset_name=dataset_name, train=False, random_state=random_state)
 
     def loaders(self, batch_size: int, shuffle_train=True, shuffle_test=False, num_workers: int=0) -> (
             DataLoader, DataLoader):

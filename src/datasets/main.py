@@ -6,12 +6,21 @@ def load_dataset(dataset_name, data_path, normal_class, known_outlier_class, n_k
                  random_state=None):
     """Loads the dataset."""
 
-    implemented_datasets = ('lg_train', 'mnist')
+    implemented_datasets = ('lg_train', 'lg_train_sample', 'mnist')
 
     assert dataset_name in implemented_datasets
 
     dataset = None
     if dataset_name in ('lg_train'):
+        dataset = LGADDataset(root=data_path,
+                                dataset_name=dataset_name,
+                                n_known_outlier_classes=n_known_outlier_classes,
+                                ratio_known_normal=ratio_known_normal,
+                                ratio_known_outlier=ratio_known_outlier,
+                                ratio_pollution=ratio_pollution,
+                                random_state=random_state)
+    
+    if dataset_name in ('lg_train_sample'):
         dataset = LGADDataset(root=data_path,
                                 dataset_name=dataset_name,
                                 n_known_outlier_classes=n_known_outlier_classes,

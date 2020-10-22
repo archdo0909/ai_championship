@@ -46,9 +46,8 @@ class LGDataset(Dataset):
                 if not line:
                     break
                 data.append(line.strip().split("\t"))
-        
-        data = np.array(data)
 
+        data = np.array(data)
         X = data[:, 1:]
         y = np.int32(data[:, 0])
 
@@ -69,8 +68,10 @@ class LGDataset(Dataset):
             self.data = X_train
             self.targets = torch.tensor(y_train)
         else:
-            self.data = X_train
-            self.targets = torch.tensor(y_train)
+            self.data = X_test
+            self.targets = torch.tensor(y_test)
+        
+        self.semi_targets = torch.zeros_like(self.targets)
 
     def __getitem__(self, index):
         """
@@ -81,15 +82,20 @@ class LGDataset(Dataset):
         Returns:
             tuple: (sample, target, index)
         """
-        base_file_name = "_FLD165NBMA_vib_spectrum_modi_train_"
-
+        if self.dataset_name == "lg_train":
+            base_file_name = "_FLD165NBMA_vib_spectrum_modi_train_"
+        if self.dataset_name == "lg_train_sample":
+            base_file_name = "sample_"
         sample, target = self.data[index], int(self.targets[index])
         measuretime = self.data[index][0]
         file_num = self.data[index][-1]
         
-        # search Hz data
-        target_fname = str(measuretime[:6]) + base_file_name + str(file_num) + ".txt"
-
+        if self.dataset_name == 'lg_train':
+            # search Hz data
+            target_fname = str(measuretime[:6]) + base_file_name + str(file_num) + ".txt"
+        if self.dataset_name == "lg_train_sample":
+            target_fname = base_file_name + str(file_num) + ".txt"
+    
         f = open(self.folder_path / target_fname, 'r')
         while 1:
             line = f.readline()
@@ -98,13 +104,15 @@ class LGDataset(Dataset):
             if measuretime in line: 
                 sample = line.strip().split('\t')[5:]
         f.close()
-
+        
         target = int(self.targets[index])
         sample = list(map(float, sample))
+        print(f'sample size : {len(sample)}')
         img_array = self.spec_array(sample)
         sample = torch.tensor(img_array, dtype=torch.float64)
+        int(self.semi_targets[index])
 
-        return sample, target, index
+        return sample, target, semi_targets, index
 
     def __len__(self):
         return len(self.data)
@@ -119,14 +127,7 @@ class LGDataset(Dataset):
         """
         fld = self.folder_path.glob("**/*")
         files = [x for x in fld if os.path.isfile(x)]
-        # read files with pandas
-        # df = pd.concat([pd.read_csv(file, sep='\t') for file in files if os.path.isfile(file)],
-        #                ignore_index=True)
-
-        # y = df['label']
-        # stage = df['stage']
-        # degc = df['degc']
-        # read files with numpy
+     
         data = [np.genfromtxt(file, delimiter='\t', skip_header=1) for file in files]
         data = np.concatenate(data)
 
@@ -151,7 +152,9 @@ class LGDataset(Dataset):
      
         # Now we can save it to a numpy array.
         data = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8, sep='')
-        data = data.reshape(fig.canvas.get_width_height()[::-1] + (3,))
-    
+        data = data.reshape((3,) + fig.canvas.get_width_height()[::-1])
+        
+        print(data.shape)
+
         return data
 

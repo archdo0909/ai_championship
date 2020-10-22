@@ -37,6 +37,7 @@ class DeepSADTrainer(BaseTrainer):
 
         # Get train data loader
         train_loader, _ = dataset.loaders(batch_size=self.batch_size, num_workers=self.n_jobs_dataloader)
+        print(f'length of train_loader {len(train_loader)}')
         
         # Set device for network
         net = net.to(self.device)
@@ -83,10 +84,15 @@ class DeepSADTrainer(BaseTrainer):
                 optimizer.step()
 
                 epoch_loss += loss.item()
-                n_batches += 1   
+                n_batches += 1
+                print(f'after n_batches: {n_batches}')  
 
             # log epoch statistics
             epoch_train_time = time.time() - epoch_start_time
+            print(f'Epoch: {epoch + 1:03}/{self.n_epochs:03}')
+            print(f'n_batches : {n_batches:.6f}')
+            print(f'Train loss: {epoch_loss}')
+            #print(f'Train Loss: {epoch_loss / n_batches:.6f}')
             logger.info(f'| Epoch: {epoch + 1:03}/{self.n_epochs:03} | Train Time: {epoch_train_time:.3f}s '
                         f'| Train Loss: {epoch_loss / n_batches:.6f} |')
 
@@ -159,7 +165,7 @@ class DeepSADTrainer(BaseTrainer):
         with torch.no_grad():
             for data in train_loader:
                 # get the inputs of the batch
-                inputs, _, _ = data
+                inputs, _, _, _ = data
                 inputs = inputs.to(self.device)
                 outputs = net(inputs)
                 n_samples += outputs.shape[0]
