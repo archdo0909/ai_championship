@@ -5,6 +5,7 @@ from .preprocessing import create_semisupervised_setting
 
 import torch
 
+
 class LGADDataset(BaseADDataset):
 
     def __init__(self, root: str, dataset_name: str, n_known_outlier_classes: int = 0, ratio_known_normal: float = 0.0,
@@ -19,7 +20,7 @@ class LGADDataset(BaseADDataset):
         if n_known_outlier_classes == 0:
             self.known_outlier_classes = ()
         else:
-            self.known_outlier_classes = (1,)        
+            self.known_outlier_classes = (1,)
 
         train_set = LGDataset(root=self.root, dataset_name=dataset_name,
                               train=True, random_state=random_state)
@@ -32,9 +33,8 @@ class LGADDataset(BaseADDataset):
                                                              ratio_known_normal,
                                                              ratio_known_outlier,
                                                              ratio_pollution)
-
+        
         train_set.semi_targets[idx] = torch.tensor(semi_targets, dtype=torch.int32)
-
         self.train_set = Subset(train_set, idx)
         self.test_set = LGDataset(root=self.root, dataset_name=dataset_name, train=False, random_state=random_state)
 

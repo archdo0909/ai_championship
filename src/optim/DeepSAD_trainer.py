@@ -56,10 +56,11 @@ class DeepSADTrainer(BaseTrainer):
         # Training
         logger.info('Starting training...')
         start_time = time.time()
+        print("train start")
         net.train()
 
         for epoch in range(self.n_epochs):
-
+            print("start")
             scheduler.step()
             if epoch in self.lr_milestones:
                 logger.info('  LR scheduler: new learning rate is %g' % float(scheduler.get_lr()[0]))
@@ -84,7 +85,7 @@ class DeepSADTrainer(BaseTrainer):
 
                 epoch_loss += loss.item()
                 n_batches += 1 
-
+            print(f'Epoch: {epoch + 1:03}/{self.n_epochs:03}')
             # log epoch statistics
             epoch_train_time = time.time() - epoch_start_time
             logger.info(f'| Epoch: {epoch + 1:03}/{self.n_epochs:03} | Train Time: {epoch_train_time:.3f}s '

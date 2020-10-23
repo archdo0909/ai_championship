@@ -97,7 +97,7 @@ def main(dataset_name, net_name, xp_path, data_path, load_config, load_model, et
         deepSAD.load_model(model_path=load_model, load_ae=True, map_location=device)
         logger.info('Loading model from %s.' % load_model)    
 
-    # logger.info('Pretraining: %s' % pretrain)
+    logger.info('Pretraining: %s' % pretrain)
     if pretrain:
         # Log pretraining details
         logger.info('Pretraining optimizer: %s' % cfg.settings['ae_optimizer_name'])
@@ -159,18 +159,18 @@ if __name__ == "__main__":
 
     # dataset_name='lg_train',
 
-    main(dataset_name='lg_train',
+    main(dataset_name='lg_train_sample',
          net_name='lg_LeNet',
          xp_path='/workspace/eddie/ai_championship/log',
          data_path='/workspace/eddie/ai_championship/data',
          load_config=None,
          load_model=None,
-         eta=1,
-         ratio_known_normal=0.01,
-         ratio_known_outlier=0.01,
-         ratio_pollution=0.1,
-         device=None,
-         seed=1514394,
+         eta=0.1,
+         ratio_known_normal=0,
+         ratio_known_outlier=0,
+         ratio_pollution=0,
+         device='cuda',
+         seed=100,
          optimizer_name='Adam',
          lr=0.001,
          n_epochs=150,
@@ -179,7 +179,7 @@ if __name__ == "__main__":
          weight_decay=0.5e-6,
          pretrain=False,
          ae_optimizer_name=None,
-         ae_lr=0.0001,
+         ae_lr=0.001,
          ae_n_epochs=150,
          ae_lr_milestone=[50],
          ae_batch_size=128,
@@ -187,5 +187,5 @@ if __name__ == "__main__":
          num_threads=4,
          n_jobs_dataloader=4,
          normal_class=0,
-         known_outlier_class=1,
+         known_outlier_class=0,
          n_known_outlier_classes=0)
