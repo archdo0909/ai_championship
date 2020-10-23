@@ -155,10 +155,12 @@ class DeepSADTrainer(BaseTrainer):
         """Initialize hypersphere center c as the mean from an initial forward pass on the data."""
         n_samples = 0
         c = torch.zeros(net.rep_dim, device=self.device)
-
+        cnt = 0
         net.eval()
         with torch.no_grad():
             for data in train_loader:
+                cnt += 1    
+                print(f"Initiation process done : {cnt} / {len(train_loader)}")
                 # get the inputs of the batch
                 inputs, _, _, _ = data
                 inputs = inputs.to(self.device)

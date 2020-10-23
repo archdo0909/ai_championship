@@ -6,6 +6,7 @@
 src/base/sample.py
 data/lg_train
 data/lg_train_sample
+data/label.txt
 
 !**/__pycache__/
 *.pyc

@@ -88,21 +88,21 @@ class LGDataset(Dataset):
             base_file_name = "_FLD165NBMA_vib_spectrum_modi_train_"
         sample, target = self.data[index], int(self.targets[index])
         measuretime = self.data[index][0]
+        folder_num = self.data[index][-2]
         file_num = self.data[index][-1]
         
         if self.dataset_name == 'lg_train':
             # search Hz data
-            target_fname = str(measuretime[:6]) + base_file_name + str(file_num) + ".txt"
+            target_fname = str(measuretime[:6]) + base_file_name + str(folder_num) + "_split_" + str(file_num) + ".txt"
         if self.dataset_name == "lg_train_sample":
             target_fname = str(measuretime[:6]) + base_file_name + str(file_num) + ".txt"
     
-        f = open(self.folder_path / target_fname, 'r')
+        f = open(self.folder_path / str(measuretime[:6]) / str(folder_num) / target_fname, 'r')
         while 1:
             line = f.readline()
             if not line:
                 break
-            if measuretime in line: 
-                sample = line.strip().split('\t')[4:-1]
+            sample = line.strip().split('\t')[4:-1]
         f.close()
         
         target = int(self.targets[index])
