@@ -5,6 +5,7 @@
 # Sample files
 src/base/sample.py
 data/lg_train
+data/lg_train_sample
 
  !**/__pycache__/
  *.pyc

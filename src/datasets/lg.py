@@ -42,8 +42,8 @@ class LGADDataset(BaseADDataset):
             DataLoader, DataLoader):
         
         train_loader = DataLoader(dataset=self.train_set, batch_size=batch_size, shuffle=shuffle_train,
-                                  num_workers=num_workers, drop_last=True)
+                                  num_workers=num_workers, drop_last=True, pin_memory=True)
         test_loader = DataLoader(dataset=self.test_set, batch_size=batch_size, shuffle=shuffle_test,
-                                 num_workers=num_workers, drop_last=False)
+                                 num_workers=num_workers, drop_last=False, pin_memory=True)
         
         return train_loader, test_loader
