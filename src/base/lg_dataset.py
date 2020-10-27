@@ -86,7 +86,7 @@ class LGDataset(Dataset):
         """
         if self.dataset_name == "lg_train":
             base_file_name = "_FLD165NBMA_vib_spectrum_modi_train_"
-        if self.dataset_name == "lg_train_sample":
+        if self.dataset_name == "lg_svdd":
             base_file_name = "_FLD165NBMA_vib_spectrum_modi_train_"
         sample, target = self.data[index], int(self.targets[index])
         measuretime = self.data[index][0]
@@ -95,7 +95,7 @@ class LGDataset(Dataset):
         if self.dataset_name == 'lg_train':
             # search Hz data
             target_fname = str(measuretime[:6]) + base_file_name + str(file_num) + ".txt"
-        if self.dataset_name == "lg_train_sample":
+        if self.dataset_name == "lg_svdd":
             target_fname = str(measuretime[:6]) + base_file_name + str(file_num) + ".txt"
     
         f = open(self.folder_path / str(measuretime[:6]) / str(file_num) / target_fname, 'r')

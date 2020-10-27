@@ -71,7 +71,7 @@ class DeepSVDDTrainer(BaseTrainer):
             n_batches = 0
             epoch_start_time = time.time()
             for data in train_loader:
-                inputs, _, _ = data
+                inputs, _, _, _ = data
                 inputs = inputs.to(self.device)
 
                 optimizer.zero_grad()
@@ -159,7 +159,7 @@ class DeepSVDDTrainer(BaseTrainer):
         with torch.no_grad():
             for data in train_loader:
                 # get the inputs of the batch
-                inputs, _, _ = data
+                inputs, _, _, _ = data
                 inputs = inputs.to(self.device)
                 outputs = net(inputs)
                 n_samples += outputs.shape[0]

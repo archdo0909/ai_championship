@@ -12,7 +12,7 @@ def svdd_load_dataset(dataset_name, data_path, normal_class, random_state):
     dataset = None
 
     if dataset_name == 'lg_svdd':
-        dataset = LG_SVDD_Dataset(root=data_path, dataset_name=dataset, normal_class=normal_class, random_state=random_state)
+        dataset = LG_SVDD_Dataset(root=data_path, dataset_name=dataset_name, normal_class=normal_class, random_state=random_state)
 
     return dataset
 
