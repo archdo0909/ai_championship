@@ -24,6 +24,7 @@ class LGDataset(Dataset):
         self.dataset_name = dataset_name
         self.train = train
         self.folder_path = self.root / self.dataset_name
+        print(self.folder_path)
         self.label_path = self.folder_path / "label"
         
         # catch label data

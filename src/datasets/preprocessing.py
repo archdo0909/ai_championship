@@ -64,3 +64,7 @@ def create_semisupervised_setting(labels, normal_classes, outlier_classes, known
                         + semi_labels_known_outlier)
 
     return list_idx, list_labels, list_semi_labels
+
+def get_target_label_idx(labels, targets):
+    
+    return np.argwhere(np.isin(labels, targets)).flatten().tolist()

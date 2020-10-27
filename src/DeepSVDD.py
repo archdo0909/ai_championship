@@ -3,7 +3,7 @@ import torch
 
 from base.base_dataset import BaseADDataset
 from networks.main import build_network, build_autoencoder
-from optim.deepSVDD_trainer import DeepSVDDTrainer
+from optim.DeepSVDD_trainer import DeepSVDDTrainer
 from optim.ae_trainer import AETrainer
 
 
