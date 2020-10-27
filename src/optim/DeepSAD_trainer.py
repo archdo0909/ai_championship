@@ -9,7 +9,7 @@ import time
 import torch
 import torch.optim as optim
 import numpy as np
-
+from datetime import datetime
 
 class DeepSADTrainer(BaseTrainer):
 
@@ -154,13 +154,14 @@ class DeepSADTrainer(BaseTrainer):
     def init_center_c(self, train_loader: DataLoader, net: BaseNet, eps=0.1):
         """Initialize hypersphere center c as the mean from an initial forward pass on the data."""
         n_samples = 0
+        print("start initialization")
         c = torch.zeros(net.rep_dim, device=self.device)
         cnt = 0
         net.eval()
         with torch.no_grad():
             for data in train_loader:
-                cnt += 1    
-                print(f"Initiation process done : {cnt} / {len(train_loader)}")
+                cnt += 1
+                print(f"training! - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")  
                 # get the inputs of the batch
                 inputs, _, _, _ = data
                 inputs = inputs.to(self.device)

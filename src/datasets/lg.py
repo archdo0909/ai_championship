@@ -1,6 +1,7 @@
 from torch.utils.data import DataLoader, Subset
 from base.base_dataset import BaseADDataset
 from base.lg_dataset import LGDataset
+from base.aug_dataset import TestDataset
 from .preprocessing import create_semisupervised_setting
 
 import torch
@@ -22,8 +23,12 @@ class LGADDataset(BaseADDataset):
         else:
             self.known_outlier_classes = (1,)
 
-        train_set = LGDataset(root=self.root, dataset_name=dataset_name,
-                              train=True, random_state=random_state)
+        if dataset_name == "lg_train":
+            train_set = LGDataset(root=self.root, dataset_name=dataset_name,
+                                  train=True, random_state=random_state)
+        else:
+            train_set = TestDataset(root=self.root, dataset_name=dataset_name,
+                                    train=True, random_state=random_state)
 
         # Create semi-supervised setting
         idx, _, semi_targets = create_semisupervised_setting(train_set.targets.cpu().data.numpy(),
@@ -36,14 +41,17 @@ class LGADDataset(BaseADDataset):
         
         train_set.semi_targets[idx] = torch.tensor(semi_targets, dtype=torch.int32)
         self.train_set = Subset(train_set, idx)
-        self.test_set = LGDataset(root=self.root, dataset_name=dataset_name, train=False, random_state=random_state)
+        if dataset_name == 'lg_train':
+            self.test_set = LGDataset(root=self.root, dataset_name=dataset_name, train=False, random_state=random_state)
+        else:
+            self.test_set = TestDataset(root=self.root, dataset_name=dataset_name, train=False, random_state=random_state)
 
     def loaders(self, batch_size: int, shuffle_train=True, shuffle_test=False, num_workers: int=0) -> (
             DataLoader, DataLoader):
         
         train_loader = DataLoader(dataset=self.train_set, batch_size=batch_size, shuffle=shuffle_train,
-                                  num_workers=num_workers, drop_last=True, pin_memory=True)
+                                  num_workers=num_workers, drop_last=True)
         test_loader = DataLoader(dataset=self.test_set, batch_size=batch_size, shuffle=shuffle_test,
-                                 num_workers=num_workers, drop_last=False, pin_memory=True)
+                                 num_workers=num_workers, drop_last=False)
         
         return train_loader, test_loader
