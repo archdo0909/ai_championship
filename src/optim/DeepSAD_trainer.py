@@ -176,4 +176,4 @@ class DeepSADTrainer(BaseTrainer):
         c[(abs(c) < eps) & (c > 0)] = eps
 
         return c
-       
+

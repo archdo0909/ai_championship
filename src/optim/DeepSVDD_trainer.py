@@ -9,6 +9,7 @@ import time
 import torch
 import torch.optim as optim
 import numpy as np
+import time
 
 
 class DeepSVDDTrainer(BaseTrainer):
@@ -154,11 +155,13 @@ class DeepSVDDTrainer(BaseTrainer):
         """Initialize hypersphere center c as the mean from an initial forward pass on the data."""
         n_samples = 0
         c = torch.zeros(net.rep_dim, device=self.device)
-
+        print("start initialization")
         net.eval()
         with torch.no_grad():
             for data in train_loader:
                 # get the inputs of the batch
+                cnt += 1
+                print(f"training! - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}") 
                 inputs, _, _, _ = data
                 inputs = inputs.to(self.device)
                 outputs = net(inputs)
