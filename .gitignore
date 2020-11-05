@@ -1,11 +1,8 @@
-#Jupyter notebook
-.ipynb_checkpoints
-
-!**/__pycache__/
-*.pyc
-
 # dirs
+.ipynb_checkpoints/
+__pycache__/
 .idea/
+log/
 
 # files
-
+*.pyc
