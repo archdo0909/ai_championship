@@ -12,17 +12,14 @@ class EnsembleNetwork(nn.Module):
         self.model_2 = model_2
         self.model_3 = model_3
 
-        # Now Remove the Last layer
+        # Remove the Last layer
         self.model_1 = nn.Identity()
         self.model_2 = nn.Identity()
         self.model_3 = nn.Identity()
 
-        # Now we a head on top of those models
-        # The trained model I am passing here is binary type based on densenet169
-        # so I added a sequential `nn.Linear(num_ftrs, 2)` with them for output when they were trained
-        # so, sould I use 2 instead of 1664 ? but used 1664 any way.
+        # classifier
         self.classifier = nn.Linear(
-            1664 + 1664 + 1664 + 1664 + 1664 + 1664 + 1664, nb_classes
+            451584, 1
         )
 
     def forward(self, x):
@@ -38,7 +35,9 @@ class EnsembleNetwork(nn.Module):
 
         # final
         x = torch.cat((x1, x2, x3), dim=1)
-        x = self.classifier(F.relu(x))
+        x = F.relu(x)
+        x = x.view(1, -1)
+        x = self.classifier(x)
         return x
 
 
@@ -66,3 +65,4 @@ if __name__ == '__main__':
 
     # Make prediction
     output = model(x)
+    print(output)
