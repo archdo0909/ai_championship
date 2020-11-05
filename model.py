@@ -31,7 +31,7 @@ class Peter_CNN(nn.Module):
 
 def build_network(net_name):
 
-    implemented_networks = ('Peter_CNN')
+    implemented_networks = ('Peter_CNN', )
 
     assert net_name in implemented_networks
 

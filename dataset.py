@@ -5,6 +5,7 @@ from sklearn.model_selection import train_test_split
 from preprocessing import Spectrogram
 
 import os
+import re
 import torch
 
 import numpy as np
@@ -12,7 +13,7 @@ import numpy as np
 
 class LGDataset(Dataset):
 
-    def __init__(self, root: str, dataset_name: str, train=True, random_state=None):
+    def __init__(self, root: str, dataset_name: str, train=True, random_state=None, stage_n_degc: str=None):
         super(Dataset, self).__init__()
 
         self.sp = Spectrogram()
@@ -27,6 +28,7 @@ class LGDataset(Dataset):
         self.train = train
         self.folder_path = self.root / self.dataset_name
         self.label_path = self.folder_path / "label"
+        self.stage_n_degc = stage_n_degc
 
         # catch label data
         fld = self.label_path.glob("**/*")
@@ -107,6 +109,12 @@ class LGDataset(Dataset):
         target = int(self.targets[index])
         sample = list(map(float, sample))
         img_array = self.sp.spec_array(sample)
+
+        if self.stage_n_degc:
+            stage_layer, degc_layer = self.feature_layer(self.data[index][1:3])
+            img_array = np.concatenate((img_array, stage_layer), axis=0)
+            img_array = np.concatenate((img_array, degc_layer), axis=0)
+
         sample = torch.tensor(img_array, dtype=torch.float32)
         semi_targets = int(self.semi_targets[index])
 
@@ -115,24 +123,15 @@ class LGDataset(Dataset):
     def __len__(self):
         return len(self.data)
 
-    def read_data(self):
-        """
-        Returns:
-            X: Hz data
-            y: label data
-            stage: working stage
-            degc: temperature in environment
-        """
-        fld = self.folder_path.glob("**/*")
-        files = [x for x in fld if os.path.isfile(x)]
+    def feature_layer(self, features):
+        
+        stage = int(re.findall("\d+", features[0])[0])
+        degc = float(features[1])
 
-        data = [np.genfromtxt(file, delimiter='\t', skip_header=1) for file in files]
-        data = np.concatenate(data)
+        stage_layer = np.full((224,224), stage, dtype = np.int8)
+        degc_layer = np.full((224,224), degc, dtype = np.float)
 
-        # mapping stage information into int 
-        X = data[:, 1:]
-        y = data[:, 0]
-        stage = data[:, 2]
-        degc = data[:, 3]
+        stage_layer = stage_layer[np.newaxis,:,:]
+        degc_layer = degc_layer[np.newaxis,:,:]
 
-        return X, y, stage, degc
+        return stage_layer, degc_layer

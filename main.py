@@ -7,7 +7,7 @@ import torch
 import logging
 
 
-def main(xp_path, network, lr, n_epochs, batch_size, device, n_jobs_dataloader):
+def main(xp_path, network, lr, n_epochs, batch_size, device, n_jobs_dataloader, stage_n_degc=None):
     """
         xp_path : 결과물 출력할 폴더의 절대 경로
     """
@@ -25,7 +25,8 @@ def main(xp_path, network, lr, n_epochs, batch_size, device, n_jobs_dataloader):
     train_set = LGDataset(root='/workspace/ai_championship/data',
                           dataset_name='lg_train',
                           train=True,
-                          random_state=None)
+                          random_state=None,
+                          stage_n_degc=True)
     test_set = LGDataset(root='/workspace/ai_championship/data',
                          dataset_name='lg_train',
                          train=False,
@@ -41,4 +42,11 @@ def main(xp_path, network, lr, n_epochs, batch_size, device, n_jobs_dataloader):
 
 if __name__ == "__main__":
 
-    main(xp_path='/workspace/ai_championship/log', network='Peter_CNN', lr=0.001, n_epochs=5, batch_size=2, device='cuda', n_jobs_dataloader=4)
+    main(xp_path='/workspace/ai_championship/log',
+         network='Peter_CNN',
+         lr=0.001,
+         n_epochs=5,
+         batch_size=2,
+         device='cuda',
+         n_jobs_dataloader=4,
+         stage_n_degc=True)
