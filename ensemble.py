@@ -6,7 +6,7 @@ import torchvision.models as models
 
 
 class EnsembleNetwork(nn.Module):
-    def __init__(self, model_1, model_2, model_3, nb_classes=2):
+    def __init__(self, model_1, model_2, model_3):
         super(EnsembleNetwork, self).__init__()
         self.model_1 = model_1
         self.model_2 = model_2
@@ -19,7 +19,7 @@ class EnsembleNetwork(nn.Module):
 
         # classifier
         self.classifier = nn.Linear(
-            451584, 1
+            752640, 1
         )
 
     def forward(self, x):
@@ -36,7 +36,6 @@ class EnsembleNetwork(nn.Module):
         # final
         x = torch.cat((x1, x2, x3), dim=1)
         x = F.relu(x)
-        x = x.view(1, -1)
         x = self.classifier(x)
         return x
 
@@ -61,7 +60,7 @@ if __name__ == '__main__':
     model = EnsembleNetwork(modelA, modelB, modelC)
 
     # Load input
-    x = torch.randn(1, 3, 224, 224)
+    x = torch.randn(1, 5, 224, 224)
 
     # Make prediction
     output = model(x)
