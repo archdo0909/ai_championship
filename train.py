@@ -81,12 +81,19 @@ class DeepSADTrainer():
     def __init__(self, c, eta: float, optimizer_name: str = 'adam', lr: float = 0.001, n_epochs: int = 150,
                  lr_milestones: tuple = (), batch_size: int = 128, weight_decay: float = 1e-6, device: str = 'cuda',
                  n_jobs_dataloader: int = 0):
-        super().__init__(optimizer_name, lr, n_epochs, lr_milestones, batch_size, weight_decay, device,
-                         n_jobs_dataloader)
-        
+
         # Deep SAD parameters
         self.c = torch.tensor(c, device=self.device) if c is not None else None
         self.eta = eta
+
+        self.optimizer_name = optimizer_name
+        self.lr = lr
+        self.n_epochs = n_epochs
+        self.lr_milestones = lr_milestones
+        self.batch_size = batch_size
+        self.weight_decay = weight_decay
+        self.device = device
+        self.n_jobs_dataloader = n_jobs_dataloader
 
         # Optimization parameters
         self.eps = 1e-6
@@ -101,7 +108,7 @@ class DeepSADTrainer():
         logger = logging.getLogger()
 
         # Get train data loader
-        train_loader, _ = dataset.loaders(batch_size=self.batch_size, num_workers=self.n_jobs_dataloader)
+        train_loader = DataLoader(dataset, batch_size=self.batch_size, num_workers=self.n_jobs_dataloader)
         
         # Set device for network
         net = net.to(self.device)
@@ -160,61 +167,10 @@ class DeepSADTrainer():
         logger.info('Training Time: {:.3f}s'.format(self.train_time))
         logger.info('Finished training.')
 
-        return net
-
-    def test(self, dataset, net):
-        logger = logging.getLogger()
-
-        # Get test data loader
-        _, test_loader = dataset.loaders(batch_size=self.batch_size, num_workers=self.n_jobs_dataloader)
-
-        # Set device for network
-        net = net.to(self.device)
-
-        # Testing
-        logger.info('Starting testing...')
-        epoch_loss = 0.0
-        n_batches = 0
-        start_time = time.time()
-        idx_label_score = []
         net.eval()
-        with torch.no_grad():
-            for data in test_loader:
-                inputs, labels, semi_targets, idx = data
+        torch.save(net.state_dict(), "/workspace/log/models/DeepSADModel.pt")
 
-                inputs = inputs.to(self.device)
-                labels = labels.to(self.device)
-                semi_targets = semi_targets.to(self.device)
-                idx = idx.to(self.device)
-
-                outputs = net(inputs)
-                dist = torch.sum((outputs - self.c) ** 2, dim=1)
-                losses = torch.where(semi_targets == 0, dist, self.eta * ((dist + self.eps) ** semi_targets.float()))
-                loss = torch.mean(losses)
-                scores = dist
-
-                # Save triples of (idx, label, score) in a list
-                idx_label_score += list(zip(idx.cpu().data.numpy().tolist(),
-                                            labels.cpu().data.numpy().tolist(),
-                                            scores.cpu().data.numpy().tolist()))
-
-                epoch_loss += loss.item()
-                n_batches += 1
-
-        self.test_time = time.time() - start_time
-        self.test_scores = idx_label_score
-
-        # Compute AUC
-        _, labels, scores = zip(*idx_label_score)
-        labels = np.array(labels)
-        scores = np.array(scores)
-        self.test_auc = roc_auc_score(labels, scores)
-
-        # Log results
-        logger.info('Test Loss: {:.6f}'.format(epoch_loss / n_batches))
-        logger.info('Test AUC: {:.2f}%'.format(100. * self.test_auc))
-        logger.info('Test Time: {:.3f}s'.format(self.test_time))
-        logger.info('Finished testing.')
+        return net
 
     def init_center_c(self, train_loader, net, eps=0.1):
         """Initialize hypersphere center c as the mean from an initial forward pass on the data."""
@@ -241,3 +197,77 @@ class DeepSADTrainer():
         c[(abs(c) < eps) & (c > 0)] = eps
 
         return c
+
+
+class AETrainer():
+
+    def __init__(self, optimizer_name: str = 'adam', lr: float = 0.001, n_epochs: int = 100,
+                 lr_milestones: tuple = (), batch_size: int = 128, weight_decay: float = 1e-6, device: str = 'cuda',
+                 n_jobs_dataloader: int = 0):
+
+        self.train_time = None
+        self.test_auc = None
+        self.test_time = None
+
+        self.optimizer_name = optimizer_name
+        self.lr = lr
+        self.n_epochs = n_epochs
+        self.lr_milestones = lr_milestones
+        self.batch_size = batch_size
+        self.weight_decay = weight_decay
+        self.device = device
+        self.n_jobs_dataloader = n_jobs_dataloader
+    
+    def train(self, dataset, ae_net):
+        logger = logging.getLogger()
+
+        train_loader = DataLoader(dataset, batch_size=self.batch_size, num_workers=self.n_jobs_dataloader)
+
+        criterion = nn.MSELoss(reduction='none')
+
+        ae_net = ae_net.to(self.device)
+        criterion = criterion.to(self.device)
+
+        optimizer = optim.Adam(ae_net.parameters(), lr=self.lr, weight_decay=self.weight_decay)
+
+        scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=self.lr_milestones, gamma=0.1)
+
+        logger.info('Starting pretraining...')
+        start_time = time.time()
+        ae_net.train()
+        for epoch in range(self.n_epochs):
+
+            scheduler.step()
+            if epoch in self.lr_milestones:
+                logger.info('  LR scheduler: new learning rate is %g' % float(scheduler.get_lr()[0]))
+
+            epoch_loss = 0.0
+            n_batches = 0
+            epoch_start_time = time.time()
+            for data in train_loader:
+                inputs, _, _, _ = data
+                inputs = inputs.to(self.device)
+
+                # Zero the network parameter gradients
+                optimizer.zero_grad()
+
+                # Update network parameters via backpropagation: forward + backward + optimize
+                rec = ae_net(inputs)
+                rec_loss = criterion(rec, inputs)
+                loss = torch.mean(rec_loss)
+                loss.backward()
+                optimizer.step()
+
+                epoch_loss += loss.item()
+                n_batches += 1
+
+            # log epoch statistics
+            epoch_train_time = time.time() - epoch_start_time
+            logger.info(f'| Epoch: {epoch + 1:03}/{self.n_epochs:03} | Train Time: {epoch_train_time:.3f}s '
+                        f'| Train Loss: {epoch_loss / n_batches:.6f} |')
+
+        self.train_time = time.time() - start_time
+        logger.info('Pretraining Time: {:.3f}s'.format(self.train_time))
+        logger.info('Finished pretraining.')
+
+        return ae_net
