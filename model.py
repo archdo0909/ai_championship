@@ -6,7 +6,7 @@ from torchvision.models import resnet34
 
 class PeterCNN(nn.Module):
     def __init__(self):
-        super(Peter_CNN, self).__init__()
+        super(PeterCNN, self).__init__()
 
         self.model = resnet34(pretrained=True)        
         self.fc = nn.Linear(512, 2)
@@ -92,4 +92,3 @@ def build_network(network_name):
         'UNet': UNet(),
     }.get(network_name)
     return network
-
