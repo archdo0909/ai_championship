@@ -87,4 +87,4 @@ def create_semisupervised_setting(labels, normal_classes, outlier_classes, known
     list_semi_labels = (semi_labels_known_normal + semi_labels_unlabeled_normal + semi_labels_unlabeled_outlier
                         + semi_labels_known_outlier)
 
-    return int(list_idx), list_labels, list_semi_labels
+    return list_idx, list_labels, list_semi_labels

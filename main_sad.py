@@ -43,9 +43,9 @@ def main(xp_path, network, optimizer_name, c, eta, lr, n_epochs, batch_size, lr_
                                                          ratio_known_outlier=0, 
                                                          ratio_pollution=0)
 
-    train_set.semi_targets[idx] = torch.tensor(semi_targets)
+    train_set.semi_targets[idx] = torch.tensor(semi_targets, dtype=torch.int32)
     train_set = Subset(train_set, idx)
-    
+
     test_set = LGDataset(root='/workspace/ai_championship/data',
                          dataset_name='lg_train',
                          train=False,
