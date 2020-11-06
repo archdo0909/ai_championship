@@ -168,9 +168,61 @@ class DeepSADTrainer():
         logger.info('Finished training.')
 
         net.eval()
-        torch.save(net.state_dict(), "/workspace/ai_championship/log/models/DeepSADModel.pt")
 
-        return net
+        # torch.save(net.state_dict(), "/workspace/ai_championship/log/models/DeepSADModel.pt")
+
+        return net, self.c
+
+    def test(self, dataset, net):
+        logger = logging.getLogger()
+
+        test_loader = DataLoader(dataset, batch_size=self.batch_size,  num_workers=self.n_jobs_dataloader)
+
+        net = net.to(self.device)
+
+        logger.info('Starting testing...')
+        epoch_loss = 0.0
+        n_batches = 0
+        start_time = time.time()
+        idx_label_score = []
+        net.eval()
+        with torch.no_grad():
+            for data in test_loader:
+                inputs, labels, semi_targets, idx = data
+
+                inputs = inputs.to(self.device)
+                labels = labels.to(self.device)
+                semi_targets = semi_targets.to(self.device)
+                idx = idx.to(self.device)
+
+                outputs = net(inputs)
+                dist = torch.sum((outputs - self.c) ** 2, dim=1)
+                losses = torch.where(semi_targets == 0, dist, self.eta * ((dist + self.eps) ** semi_targets.float()))
+                loss = torch.mean(losses)
+                scores = dist
+
+                # Save triples of (idx, label, score) in a list
+                idx_label_score += list(zip(idx.cpu().data.numpy().tolist(),
+                                            labels.cpu().data.numpy().tolist(),
+                                            scores.cpu().data.numpy().tolist()))
+
+                epoch_loss += loss.item()
+                n_batches += 1
+
+        self.test_time = time.time() - start_time
+        self.test_scores = idx_label_score
+
+        # Compute AUC
+        _, labels, scores = zip(*idx_label_score)
+        labels = np.array(labels)
+        scores = np.array(scores)
+        self.test_auc = roc_auc_score(labels, scores)
+
+        # Log results
+        logger.info('Test Loss: {:.6f}'.format(epoch_loss / n_batches))
+        logger.info('Test AUC: {:.2f}%'.format(100. * self.test_auc))
+        logger.info('Test Time: {:.3f}s'.format(self.test_time))
+        logger.info('Finished testing.')        
 
     def init_center_c(self, train_loader, net, eps=0.1):
         """Initialize hypersphere center c as the mean from an initial forward pass on the data."""
