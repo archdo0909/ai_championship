@@ -1,3 +1,4 @@
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
@@ -29,9 +30,9 @@ class Peter_CNN(nn.Module):
         return num_features
 
 
-class LG_LeNet():
+class LG_LeNet(nn.Module):
 
-    def __init__(self, rep_dim=32):
+    def __init__(self, rep_dim=98):
         super().__init__()
 
         self.rep_dim = rep_dim
@@ -44,7 +45,7 @@ class LG_LeNet():
         self.conv3 = nn.Conv2d(4, 3, 5, bias=False, padding=2)
         self.bn3 = nn.BatchNorm2d(3, eps=1e-04, affine=False)
 
-        self.fc1 = nn.Linear(3 * 27 * 27, self.rep_dim, bias=False)
+        self.fc1 = nn.Linear(3 * 28 * 28, self.rep_dim, bias=False)
 
     def forward(self, x):
         x = x.view(-1, 3, 224, 224)
@@ -59,9 +60,9 @@ class LG_LeNet():
         return x
 
 
-class LG_LeNet_Decoder():
+class LG_LeNet_Decoder(nn.Module):
 
-    def __init__(self, rep_dim=32):
+    def __init__(self, rep_dim=98):
         super().__init__()
 
         self.rep_dim = rep_dim
@@ -69,15 +70,15 @@ class LG_LeNet_Decoder():
         # Decoder network
         self.deconv1 = nn.ConvTranspose2d(2, 4, 5, bias=False, padding=2)
         self.bn3 = nn.BatchNorm2d(4, eps=1e-04, affine=False)
-        self.deconv2 = nn.ConvTranspose2d(4, 8, 5, bias=False, padding=3)
+        self.deconv2 = nn.ConvTranspose2d(4, 8, 5, bias=False, padding=2)
         self.bn4 = nn.BatchNorm2d(8, eps=1e-04, affine=False)
-        self.deconv3 = nn.ConvTranspose2d(8, 1, 5, bias=False, padding=2)
+        self.deconv3 = nn.ConvTranspose2d(8, 3, 5, bias=False, padding=2)
 
     def forward(self, x):
-        x = x.view(int(x.size(0)), int(self.rep_dim / 16), 4, 4)
-        x = F.interpolate(F.leaky_relu(x), scale_factor=2)
+        x = x.view(int(x.size(0)), int(self.rep_dim / 49), 7, 7)
+        x = F.interpolate(F.leaky_relu(x), scale_factor=4)
         x = self.deconv1(x)
-        x = F.interpolate(F.leaky_relu(self.bn3(x)), scale_factor=2)
+        x = F.interpolate(F.leaky_relu(self.bn3(x)), scale_factor=4)
         x = self.deconv2(x)
         x = F.interpolate(F.leaky_relu(self.bn4(x)), scale_factor=2)
         x = self.deconv3(x)
@@ -85,9 +86,9 @@ class LG_LeNet_Decoder():
         return x
 
 
-class LG_LeNet_Autoencoder():
+class LG_LeNet_Autoencoder(nn.Module):
 
-    def __init__(self, rep_dim=32):
+    def __init__(self, rep_dim=98):
         super().__init__()
 
         self.rep_dim = rep_dim
@@ -115,5 +116,5 @@ def build_network(net_name):
 
     if net_name == 'LG_LeNet_Autoencoder':
         net = LG_LeNet_Autoencoder()
-    
+
     return net

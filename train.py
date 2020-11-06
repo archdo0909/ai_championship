@@ -82,10 +82,6 @@ class DeepSADTrainer():
                  lr_milestones: tuple = (), batch_size: int = 128, weight_decay: float = 1e-6, device: str = 'cuda',
                  n_jobs_dataloader: int = 0):
 
-        # Deep SAD parameters
-        self.c = torch.tensor(c, device=self.device) if c is not None else None
-        self.eta = eta
-
         self.optimizer_name = optimizer_name
         self.lr = lr
         self.n_epochs = n_epochs
@@ -94,6 +90,10 @@ class DeepSADTrainer():
         self.weight_decay = weight_decay
         self.device = device
         self.n_jobs_dataloader = n_jobs_dataloader
+
+        # Deep SAD parameters
+        self.c = torch.tensor(c, device=self.device) if c is not None else None
+        self.eta = eta
 
         # Optimization parameters
         self.eps = 1e-6
@@ -168,7 +168,7 @@ class DeepSADTrainer():
         logger.info('Finished training.')
 
         net.eval()
-        torch.save(net.state_dict(), "/workspace/log/models/DeepSADModel.pt")
+        torch.save(net.state_dict(), "/workspace/ai_championship/log/models/DeepSADModel.pt")
 
         return net
 
