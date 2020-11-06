@@ -1,7 +1,31 @@
 import torch.nn as nn
 import torch.nn.functional as F
 
-from torchvision.models import resnet34
+from torchvision.models import resnet18, resnet34
+
+
+
+
+class Resnet(nn.Module):
+    def __init__(self):
+        super(Resnet, self).__init__()
+        self.model = resnet18(pretrained=True)
+        self.num_ftrs = self.model.fc.in_features
+        self.model.conv1 = nn.Conv2d(5, 64, kernel_size=3) # 인풋 레이어 5채널로 수정
+        self.model.fc = nn.Linear(self.num_ftrs, 2) # 마지막 레이어 아웃풋 2로 수정(정상, 불량)
+        print(self.model)
+
+    def forward(self, x):
+        # x = self.model.conv1
+        # x = x.view(-1, 5, 224, 224)
+        # x = F.relu(self.model.conv1(x))
+        x = self.model(x)
+        # x = F.relu(self.model(x))
+        # x = x.view(-1, self.num_flat_features(x))
+        # x = F.relu(self.model.fc(x))
+
+        return x
+
 
 
 class PeterCNN(nn.Module):
@@ -85,10 +109,11 @@ class UNet(nn.Module):
         return self.conv_last(x)
 
 def build_network(network_name):
-    implemented_networks = ('PeterCNN', 'UNet',)
+    implemented_networks = ('resnet', 'PeterCNN', 'UNet',)
     assert network_name in implemented_networks, 'invaliad network name'
     network = {
+        'resnet': Resnet(),
         'vanilla_cnn': PeterCNN(),
-        'UNet': UNet(),
+        #'UNet': UNet(1,1)
     }.get(network_name)
     return network

@@ -37,13 +37,14 @@ def main(xp_path, network, lr, n_epochs, batch_size, device, n_jobs_dataloader, 
 
     # Register your network in model.py
     net = build_network(network)
+    print("network prepared")
 
     sample_train.train(train_set, net)
 
 if __name__ == "__main__":
 
     main(xp_path='/workspace/ai_championship/log',
-         network='Peter_CNN',
+         network='resnet',
          lr=0.001,
          n_epochs=5,
          batch_size=2,
