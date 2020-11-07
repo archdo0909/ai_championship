@@ -1,6 +1,6 @@
 import numpy as np
 
-from imblearn.over_sampling import SMOTE, SMOTENC
+from imblearn.over_sampling import ADASYN
 
 
 class Sampler:
@@ -51,8 +51,8 @@ class Sampler:
     def oversample(self, nb_data_to_load):
         X, y = self.load_data(nb_data_to_load)
         
-        # Oversamling data with SMOTENC
-        oversampler = SMOTENC(categorical_features=[1] , random_state=0)
+        # Oversamling data with ADASYN
+        oversampler = ADASYN(random_state=0)
         X_resampled, y_resampled = oversampler.fit_sample(X, y)
         
         self.save_data(self.file_to_save, X_resampled, y_resampled)
