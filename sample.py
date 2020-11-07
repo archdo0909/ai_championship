@@ -29,11 +29,9 @@ class Sampler:
                 y.append(curr_data[0])
 
         # Load abnormal data (불량 데이터)
-        with open(self.abnormal_file_to_load, 'r') as f:
+        with open(self.file_to_load_abnormal, 'r') as f:
             lines = f.readlines()
             for line in lines:
-                if len(X) == nb_data_to_load:
-                    break
                 curr_data = line.strip().split('\t')
                 curr_data[2] = stage_value = int(curr_data[2][1])
                 X.append(curr_data[1:])
@@ -44,7 +42,7 @@ class Sampler:
         y_np = np.array(y).astype(np.int)
         return X_np, y_np
 
-    def save_data(filename, X_resampled, y_resampled):
+    def save_data(self, filename, X_resampled, y_resampled):
         with open(filename, 'a') as f:
             for data, label in zip(X_resampled, y_resampled):
                 line = str(label) + '\t' + '\t'.join(map(str, data)) + '\n'
@@ -54,7 +52,7 @@ class Sampler:
         X, y = self.load_data(nb_data_to_load)
         
         # Oversamling data with SMOTENC
-        oversampler = SMOTENC(categorical_features=[2] , random_state=0)
+        oversampler = SMOTENC(categorical_features=[1] , random_state=0)
         X_resampled, y_resampled = oversampler.fit_sample(X, y)
         
         self.save_data(self.file_to_save, X_resampled, y_resampled)
@@ -69,5 +67,5 @@ class Sampler:
 
 
 if __name__ == "__main__":
-    sampler = Sampler('', '')
-    sampler.oversmaple(nb_data_to_load=100)
+    sampler = Sampler('', '', '')
+    sampler.oversample(nb_data_to_load=100)
