@@ -54,7 +54,12 @@ class Sampler:
         # Oversamling data with ADASYN
         oversampler = ADASYN(random_state=0)
         X_resampled, y_resampled = oversampler.fit_sample(X, y)
-        
+
+        # Round datetime, stage and temperature
+        X_resampled[:, 0] = X_resampled[:, 0].round()
+        X_resampled[:, 1] = X_resampled[:, 1].round()
+        X_resampled[:, 2] = X_resampled[:, 2].round(1)
+
         self.save_data(self.file_to_save, X_resampled, y_resampled)
 
     def undersample(self, nb_data_to_load):
