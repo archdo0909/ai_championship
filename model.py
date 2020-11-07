@@ -11,7 +11,7 @@ class Resnet(nn.Module):
         super(Resnet, self).__init__()
         self.model = resnet18(pretrained=True)
         self.num_ftrs = self.model.fc.in_features
-        self.model.conv1 = nn.Conv2d(5, 64, kernel_size=3) # 인풋 레이어 5채널로 수정
+        # self.model.conv1 = nn.Conv2d(5, 64, kernel_size=3) # 인풋 레이어 5채널로 수정
         self.model.fc = nn.Linear(self.num_ftrs, 2) # 마지막 레이어 아웃풋 2로 수정(정상, 불량)
         print(self.model)
 
@@ -191,7 +191,7 @@ def build_network(network_name):
     network = {
         'resnet': Resnet(),
         'VanillaCNN': VanillaCNN(),
-        'UNet': UNet(),
-        'CRNN': CRNN(),
+        # 'UNet': UNet(),
+        # 'CRNN': CRNN(),
     }.get(network_name)
     return network

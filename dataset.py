@@ -2,7 +2,7 @@
 from pathlib import Path
 from torch.utils.data import Dataset
 from sklearn.model_selection import train_test_split
-from preprocessing import spec_array, feature_layer
+from preprocessing import preprocess
 import os
 import re
 import torch
@@ -109,18 +109,12 @@ class LGDataset(Dataset):
             if not line:
                 break
             if measuretime in line:
-                sample = line.strip().split('\t')[4:-1]
+                sample = line.strip().split('\t')[1:-1]
         f.close()
 
         target = int(self.targets[index])
         sample = list(map(float, sample))
-        img_array = spec_array(sample)
-
-        if self.stage_n_degc:
-            stage_layer, degc_layer = feature_layer(self.data[index][1:3])
-            img_array = np.concatenate((img_array, stage_layer), axis=0)
-            img_array = np.concatenate((img_array, degc_layer), axis=0)
-
+        img_array = preprocess(sample)
         sample = torch.tensor(img_array, dtype=torch.float32)
         semi_targets = int(self.semi_targets[index])
 
