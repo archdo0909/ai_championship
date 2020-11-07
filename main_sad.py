@@ -29,7 +29,7 @@ def main(xp_path, network, optimizer_name, c, eta, lr, n_epochs, batch_size, lr_
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
 
-    train_set = LGDataset(root='/workspace/ai_championship/data',
+    train_set = LGDataset(root='/workspace/eddie/ai_championship/data',
                           dataset_name='lg_train',
                           train=True,
                           random_state=None,
@@ -46,7 +46,7 @@ def main(xp_path, network, optimizer_name, c, eta, lr, n_epochs, batch_size, lr_
     train_set.semi_targets[idx] = torch.tensor(semi_targets, dtype=torch.int32)
     train_set = Subset(train_set, idx)
 
-    test_set = LGDataset(root='/workspace/ai_championship/data',
+    test_set = LGDataset(root='/workspace/eddie/ai_championship/data',
                          dataset_name='lg_train',
                          train=False,
                          random_state=None,
