@@ -39,27 +39,33 @@ class Sampler:
                 X.append(curr_data[1:])
                 y.append(curr_data[0])
 
-        return X, y
-
-    def oversample(self, nb_data_to_load):
-        X, y = self.load_data(nb_data_to_load)
-
-        # Type conversion is required for ADASYN
+        # Possible type conversion required for sampling methods
         X_np = np.array(X).astype(np.float64)
         y_np = np.array(y).astype(np.int)
-        
-        # Oversamling data with SMOTENC
-        oversampler = SMOTENC(categorical_features=[2] , random_state=0)
-        X_resampled, y_resampled = oversampler.fit_sample(X_np, y_np)
-        
-        # Save oversampled data to a text file
-        with open(self.file_to_save, 'a') as f:
+        return X_np, y_np
+
+    def save_data(filename, X_resampled, y_resampled):
+        with open(filename, 'a') as f:
             for data, label in zip(X_resampled, y_resampled):
                 line = str(label) + '\t' + '\t'.join(map(str, data)) + '\n'
                 f.write(line)
 
+    def oversample(self, nb_data_to_load):
+        X, y = self.load_data(nb_data_to_load)
+        
+        # Oversamling data with SMOTENC
+        oversampler = SMOTENC(categorical_features=[2] , random_state=0)
+        X_resampled, y_resampled = oversampler.fit_sample(X, y)
+        
+        self.save_data(self.file_to_save, X_resampled, y_resampled)
+
     def undersample(self, nb_data_to_load):
-        raise NotImplementedError
+        X, y = self.load_data(nb_data_to_load)
+
+        # Undersampling data with ?
+        X_resampled, y_resampled = None, None
+
+        self.save_data(self.file_to_save, X_resampled, y_resampled)
 
 
 if __name__ == "__main__":
