@@ -53,6 +53,7 @@ class SampleTrainer():
 
                 # Update network parameters via backpropagation: forward + backward + optimize
                 outputs = net(inputs)
+
                 loss = criterion(outputs, targets)
                 
                 loss.backward()
@@ -71,7 +72,7 @@ class SampleTrainer():
         logger.info('Finished training.')
 
         net.eval()
-        torch.save(net.state_dict(), "/workspace/log/models/sample_train.pt")
+        torch.save(net.state_dict(), "/workspace/ai_championship/log/models/sample_train.pt")
 
         return net
         
