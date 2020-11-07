@@ -6,14 +6,18 @@ from imblearn.over_sampling import SMOTE, SMOTENC
 class Sampler:
     """A sampler performs over and under samling on given dataset"""
 
-    def __init__(self, src_path, dst_path):
+    def __init__(self, src_path, src_path_abnormal, dst_path):
         self.file_to_load = src_path
         self.file_to_save = dst_path
+
+        self.file_to_load_abnormal = src_path_abnormal
         
     def load_data(self, nb_data_to_load):
         # Load structured data given by LG Science Park 
         X = []
         y = []
+
+        # Load normal data (정상 데이터)
         with open(self.file_to_load, 'r') as f:
             lines = f.readlines()
             for line in lines:
@@ -23,6 +27,18 @@ class Sampler:
                 curr_data[2] = stage_value = int(curr_data[2][1])
                 X.append(curr_data[1:])
                 y.append(curr_data[0])
+
+        # Load abnormal data (불량 데이터)
+        with open(self.abnormal_file_to_load, 'r') as f:
+            lines = f.readlines()
+            for line in lines:
+                if len(X) == nb_data_to_load:
+                    break
+                curr_data = line.strip().split('\t')
+                curr_data[2] = stage_value = int(curr_data[2][1])
+                X.append(curr_data[1:])
+                y.append(curr_data[0])
+
         return X, y
 
     def oversample(self, nb_data_to_load):
@@ -48,4 +64,4 @@ class Sampler:
 
 if __name__ == "__main__":
     sampler = Sampler('', '')
-    sampler.oversmaple(100)
+    sampler.oversmaple(nb_data_to_load=100)
