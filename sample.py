@@ -1,6 +1,7 @@
 import numpy as np
 
 from imblearn.over_sampling import ADASYN
+from imblearn.under_sampling import TomekLinks
 
 
 class Sampler:
@@ -52,8 +53,8 @@ class Sampler:
         X, y = self.load_data(nb_data_to_load)
         
         # Oversamling data with ADASYN
-        oversampler = ADASYN(random_state=0)
-        X_resampled, y_resampled = oversampler.fit_sample(X, y)
+        oversampler = ADASYN(random_state=42)
+        X_resampled, y_resampled = oversampler.fit_resample(X, y)
 
         # Round datetime, stage and temperature
         X_resampled[:, 0] = X_resampled[:, 0].round()
@@ -66,7 +67,13 @@ class Sampler:
         X, y = self.load_data(nb_data_to_load)
 
         # Undersampling data with ?
-        X_resampled, y_resampled = None, None
+        undersampler = TomekLinks()
+        X_resampled, y_resampled = undersampler.fit_resample(X, y)
+
+        # Round datetime, stage and temperature
+        X_resampled[:, 0] = X_resampled[:, 0].round()
+        X_resampled[:, 1] = X_resampled[:, 1].round()
+        X_resampled[:, 2] = X_resampled[:, 2].round(1)
 
         self.save_data(self.file_to_save, X_resampled, y_resampled)
 
