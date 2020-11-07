@@ -11,6 +11,7 @@ def predict(model_path, data_path):
     c = model_dict['c']
     net = build_network('LG_LeNet')
     net.load_state_dict(model_dict['net_dict'])
+    outlier_dist = model_dict['outlier_dist']
     
     ae_net = build_network('LG_LeNet_Autoencoder')
     ae_net.load_state_dict(model_dict['ae_net_dict'])
@@ -22,8 +23,14 @@ def predict(model_path, data_path):
     for i in range(len(images)):
         outputs = net(torch.tensor(images[i], dtype=torch.float32).to('cuda'))
         dist = torch.sum((outputs - c) ** 2, dim=1)
-        print(f"dist:{dist}")
-    #print(f"Show output : {output}")
+        if dist > outlier_dist:
+            label = 1
+            print(print(f"label:{label}, abnormal"))
+        else:
+            label = 0
+            print(print(f"label:{label}, normal"))
+
+    # print(f"Show output : {output}")
 
     return output
 

@@ -6,3 +6,5 @@ log/
 
 # files
 *.pyc
+
+data/*.swp

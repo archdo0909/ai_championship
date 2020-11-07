@@ -186,6 +186,7 @@ class DeepSADTrainer():
         start_time = time.time()
         idx_label_score = []
         net.eval()
+        outlier_dist = 0
         with torch.no_grad():
             for data in test_loader:
                 inputs, labels, semi_targets, idx = data
@@ -208,21 +209,27 @@ class DeepSADTrainer():
 
                 epoch_loss += loss.item()
                 n_batches += 1
+                for label, score in zip(labels.cpu().data.numpy(), scores.cpu().data.numpy().tolist()):
+                    if not label:
+                        if outlier_dist < score:
+                            outlier_dist = score
 
         self.test_time = time.time() - start_time
         self.test_scores = idx_label_score
 
-        # Compute AUC
+        # # Compute AUC
         _, labels, scores = zip(*idx_label_score)
         labels = np.array(labels)
         scores = np.array(scores)
-        self.test_auc = roc_auc_score(labels, scores)
+        # self.test_auc = roc_auc_score(labels, scores)
 
-        # Log results
+        # # Log results
         logger.info('Test Loss: {:.6f}'.format(epoch_loss / n_batches))
-        logger.info('Test AUC: {:.2f}%'.format(100. * self.test_auc))
+        # logger.info('Test AUC: {:.2f}%'.format(100. * self.test_auc))
         logger.info('Test Time: {:.3f}s'.format(self.test_time))
-        logger.info('Finished testing.')        
+        logger.info('Finished testing.')
+
+        return outlier_dist
 
     def init_center_c(self, train_loader, net, eps=0.1):
         """Initialize hypersphere center c as the mean from an initial forward pass on the data."""

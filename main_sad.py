@@ -74,6 +74,8 @@ def main(xp_path, network, optimizer_name, c, eta, lr, n_epochs, batch_size, lr_
 
     net, c = deep_sad_train.train(train_set, net)
 
+    outlier_dist = deep_sad_train.test(test_set, net)
+
     # save model
     net_dict = net.state_dict()
     ae_net_dict = ae_net.state_dict()
@@ -81,11 +83,10 @@ def main(xp_path, network, optimizer_name, c, eta, lr, n_epochs, batch_size, lr_
     torch.save({
         'c': c,
         'net_dict': net_dict,
-        'ae_net_dict': ae_net_dict
+        'ae_net_dict': ae_net_dict,
+        'outlier_dist': outlier_dist
     }, export_model)
-
-    # deep_sad_train.test(test_set, net)
-
+    
 
 if __name__ == "__main__":
 
@@ -94,17 +95,17 @@ if __name__ == "__main__":
          optimizer_name='Adam',
          c=0.01,
          eta=0.01,
-         lr=0.001,
+         lr=0.01,
          n_epochs=10,
          batch_size=10,
          lr_milestones=(2, 5,),
          weight_decay=0.5e-3,
          ae_optimizer_name='Adam',
-         ae_lr=0.001,
+         ae_lr=0.1,
          ae_n_epochs=10,
          ae_lr_milestone=(2, 5,),
          ae_batch_size=10,
-         ae_weight_decay=0.5e-3,
+         ae_weight_decay=0.5e-2,
          device='cuda',
          n_jobs_dataloader=4,
          stage_n_degc=True)
