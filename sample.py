@@ -2,6 +2,7 @@ import numpy as np
 
 from imblearn.over_sampling import ADASYN
 from imblearn.under_sampling import TomekLinks
+from imblearn.combine import SMOTETomek
 
 
 class Sampler:
@@ -49,26 +50,16 @@ class Sampler:
                 line = str(label) + '\t' + '\t'.join(map(str, data)) + '\n'
                 f.write(line)
 
-    def oversample(self, nb_data_to_load):
-        X, y = self.load_data(nb_data_to_load)
-        
-        # Oversamling data with ADASYN
-        oversampler = ADASYN(random_state=42)
-        X_resampled, y_resampled = oversampler.fit_resample(X, y)
-
-        # Round datetime, stage and temperature
-        X_resampled[:, 0] = X_resampled[:, 0].round()
-        X_resampled[:, 1] = X_resampled[:, 1].round()
-        X_resampled[:, 2] = X_resampled[:, 2].round(1)
-
-        self.save_data(self.file_to_save, X_resampled, y_resampled)
-
-    def undersample(self, nb_data_to_load):
+    def sample(self, nb_data_to_load, mode='combine'):
         X, y = self.load_data(nb_data_to_load)
 
-        # Undersampling data with ?
-        undersampler = TomekLinks()
-        X_resampled, y_resampled = undersampler.fit_resample(X, y)
+        # Init sampler
+        sampler = {
+            'over': ADASYN(),
+            'under': TomekLinks(),
+            'combine': SMOTETomek(),
+        }.get(mode)
+        X_resampled, y_resampled = sampler.fit_resample(X, y)
 
         # Round datetime, stage and temperature
         X_resampled[:, 0] = X_resampled[:, 0].round()
@@ -80,4 +71,4 @@ class Sampler:
 
 if __name__ == "__main__":
     sampler = Sampler('', '', '')
-    sampler.oversample(nb_data_to_load=100)
+    sampler.sample(nb_data_to_load=100)
