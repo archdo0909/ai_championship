@@ -3,6 +3,7 @@ from pathlib import Path
 from torch.utils.data import Dataset
 from sklearn.model_selection import train_test_split
 from preprocessing import spec_array, feature_layer
+
 import os
 import re
 import torch
@@ -15,53 +16,24 @@ class LGDataset(Dataset):
     def __init__(self, root: str, dataset_name: str, train=True, random_state=None, stage_n_degc: str=None):
         super(Dataset, self).__init__()
 
-        # self.sp = Spectrogram()
+        self.root = root
+        self.dataset_name = dataset_name
+        self.train = train
+        self.random_state = random_state
+        self.stage_n_degc = stage_n_degc
 
         self.classes = [0, 1]
 
-        # 절대경로로 대체
-        root = os.path.expanduser(root)
+        self.dataset_path = self.root + self.dataset_name
+        file_list = []
+        
+        for files in os.listdir(self.dataset_path):
+            if files.endswith('.txt'):
+                file_list.append(files)
 
-        self.root = Path(root)
-        self.dataset_name = dataset_name
-        self.train = train
-        self.folder_path = self.root / self.dataset_name
-        self.label_path = self.folder_path / "label"
-        self.stage_n_degc = stage_n_degc
+        data = np.array(file_list)
 
-        # catch label data
-        fld = self.label_path.glob("**/*")
-        file = list(fld)[0]
-
-        """load label data
-
-        input: "label_data.txt"
-        column name:
-            [label] [measure time] [stage] [temperature] [file_num]
-            
-        X contains [measure time] [stage] [temperature] [file_num]
-        y contains [label]
-
-        """
-        data = []
-        with open(file, "r") as f:
-            while 1:
-                line = f.readline()
-                if not line:
-                    break
-                data.append(line.strip().split("\t"))
-
-        data = np.array(data)
-        X = data[:, 1:]
-        y = np.int32(data[:, 0])
-
-
-        """
-        split train, test and validation set
-        train : 60%, test: 20%, validation: 20% 
-
-        """
-        X_train, X_test, y_train, y_test = train_test_split(X, y,
+        X_train, X_test, y_train, y_test = train_test_split(data, data,
                                                             test_size=0.4,
                                                             random_state=random_state)
         X_test, X_val, y_test, y_val = train_test_split(X_test, y_test,
@@ -70,10 +42,10 @@ class LGDataset(Dataset):
 
         if self.train:
             self.data = X_train
-            self.targets = torch.tensor(y_train)
+            #self.targets = y_train
         else:
             self.data = X_test
-            self.targets = torch.tensor(y_test)
+            #self.targets = y_test
 
         self.semi_targets = torch.zeros_like(self.targets)
 
@@ -86,35 +58,18 @@ class LGDataset(Dataset):
         Returns:
             tuple: (sample, target, index)
         """
-        if self.dataset_name == "lg_train":
-            base_file_name = "_FLD165NBMA_vib_spectrum_modi_train_"
-           
-        if self.dataset_name == "sampled":
-            base_file_name = "combine"
-
-        sample, target = self.data[index], int(self.targets[index])
-        measuretime = self.data[index][0]
-        file_num = self.data[index][-1]
-
-        if self.dataset_name == 'lg_train':
-            # search Hz data
-            target_fname = str(measuretime[:6]) + base_file_name + str(file_num) + ".txt"
-
-        if self.dataset_name == "sampled":
-            target_fname = "combine" + ".txt"
-
-        f = open(self.folder_path / target_fname, 'r')
+        self.data_name = self.data[index]
+        f = open(self.dataset_path / self.data_name, 'r')
         while 1:
             line = f.readline()
             if not line:
                 break
-            if measuretime in line:
-                sample = line.strip().split('\t')[4:-1]
+            sample = line.strip().split('\t')
         f.close()
 
-        target = int(self.targets[index])
-        sample = list(map(float, sample))
-        img_array = spec_array(sample)
+        target = int(sample[0])
+        freq = list(map(float, sample[4:]))
+        img_array = spec_array(freq)
 
         if self.stage_n_degc:
             stage_layer, degc_layer = feature_layer(self.data[index][1:3])
@@ -128,16 +83,3 @@ class LGDataset(Dataset):
 
     def __len__(self):
         return len(self.data)
-
-    # def feature_layer(self, features):
-        
-    #     stage = int(re.findall("\d+", features[0])[0])
-    #     degc = float(features[1])
-
-    #     stage_layer = np.full((224,224), stage, dtype = np.int8)
-    #     degc_layer = np.full((224,224), degc, dtype = np.float)
-
-    #     stage_layer = stage_layer[np.newaxis,:,:]
-    #     degc_layer = degc_layer[np.newaxis,:,:]
-
-    #     return stage_layer, degc_layer
