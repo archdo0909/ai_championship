@@ -2,8 +2,7 @@
 from pathlib import Path
 from torch.utils.data import Dataset
 from sklearn.model_selection import train_test_split
-from preprocessing import Spectrogram
-
+from preprocessing import preprocess
 import os
 import re
 import torch
@@ -16,7 +15,7 @@ class LGDataset(Dataset):
     def __init__(self, root: str, dataset_name: str, train=True, random_state=None, stage_n_degc: str=None):
         super(Dataset, self).__init__()
 
-        self.sp = Spectrogram()
+        # self.sp = Spectrogram()
 
         self.classes = [0, 1]
 
@@ -89,6 +88,9 @@ class LGDataset(Dataset):
         """
         if self.dataset_name == "lg_train":
             base_file_name = "_FLD165NBMA_vib_spectrum_modi_train_"
+           
+        if self.dataset_name == "sampled":
+            base_file_name = "combine"
 
         sample, target = self.data[index], int(self.targets[index])
         measuretime = self.data[index][0]
@@ -97,6 +99,9 @@ class LGDataset(Dataset):
         if self.dataset_name == 'lg_train':
             # search Hz data
             target_fname = str(measuretime[:6]) + base_file_name + str(file_num) + ".txt"
+
+        if self.dataset_name == "sampled":
+            target_fname = "combine" + ".txt"
 
         f = open(self.folder_path / target_fname, 'r')
         while 1:
@@ -109,13 +114,7 @@ class LGDataset(Dataset):
 
         target = int(self.targets[index])
         sample = list(map(float, sample))
-        img_array = self.sp.spec_array(sample)
-
-        if self.stage_n_degc:
-            stage_layer, degc_layer = self.feature_layer(self.data[index][1:3])
-            img_array = np.concatenate((img_array, stage_layer), axis=0)
-            img_array = np.concatenate((img_array, degc_layer), axis=0)
-
+        img_array = preprocess(sample)
         sample = torch.tensor(img_array, dtype=torch.float32)
         semi_targets = int(self.semi_targets[index])
 
@@ -124,15 +123,15 @@ class LGDataset(Dataset):
     def __len__(self):
         return len(self.data)
 
-    def feature_layer(self, features):
+    # def feature_layer(self, features):
         
-        stage = int(re.findall("\d+", features[0])[0])
-        degc = float(features[1])
+    #     stage = int(re.findall("\d+", features[0])[0])
+    #     degc = float(features[1])
 
-        stage_layer = np.full((224,224), stage, dtype = np.int8)
-        degc_layer = np.full((224,224), degc, dtype = np.float)
+    #     stage_layer = np.full((224,224), stage, dtype = np.int8)
+    #     degc_layer = np.full((224,224), degc, dtype = np.float)
 
-        stage_layer = stage_layer[np.newaxis,:,:]
-        degc_layer = degc_layer[np.newaxis,:,:]
+    #     stage_layer = stage_layer[np.newaxis,:,:]
+    #     degc_layer = degc_layer[np.newaxis,:,:]
 
-        return stage_layer, degc_layer
+    #     return stage_layer, degc_layer

@@ -7,7 +7,7 @@ import torch
 import logging
 
 
-def main(xp_path, network, lr, n_epochs, batch_size, device, n_jobs_dataloader, stage_n_degc=None):
+def main(data_path, data_name, xp_path, network, lr, n_epochs, batch_size, device, n_jobs_dataloader, stage_n_degc=None):
     """
         xp_path : 결과물 출력할 폴더의 절대 경로
     """
@@ -16,19 +16,19 @@ def main(xp_path, network, lr, n_epochs, batch_size, device, n_jobs_dataloader, 
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    log_file =  xp_path + '/log.txt'
+    log_file = xp_path + '/log.txt'
     file_handler = logging.FileHandler(log_file)
     file_handler.setLevel(logging.INFO)
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
 
-    train_set = LGDataset(root='/workspace/ai_championship/data',
-                          dataset_name='lg_train',
+    train_set = LGDataset(root=data_path,
+                          dataset_name=data_name,
                           train=True,
                           random_state=None,
                           stage_n_degc=True)
-    test_set = LGDataset(root='/workspace/ai_championship/data',
-                         dataset_name='lg_train',
+    test_set = LGDataset(root=data_path,
+                         dataset_name=data_name,
                          train=False,
                          random_state=None)
 
@@ -37,13 +37,16 @@ def main(xp_path, network, lr, n_epochs, batch_size, device, n_jobs_dataloader, 
 
     # Register your network in model.py
     net = build_network(network)
+    print("network prepared")
 
     sample_train.train(train_set, net)
 
 if __name__ == "__main__":
 
-    main(xp_path='/workspace/ai_championship/log',
-         network='Peter_CNN',
+    main(data_path='/workspace/ai_championship/data',
+         data_name='sampled',
+         xp_path='/workspace/ai_championship/log',
+         network='resnet',
          lr=0.001,
          n_epochs=5,
          batch_size=2,

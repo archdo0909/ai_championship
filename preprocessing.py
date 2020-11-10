@@ -1,30 +1,29 @@
-import pandas as pd
 import numpy as np
-from matplotlib import pyplot as plt
 
 
-class Spectrogram(object):
-     
-    def __init__(self):
-        pass
-        
-    def spec_array(self, arr):
-        plt.rcParams["figure.figsize"] = (2.24, 2.24)
-        plt.axis('off') # "invisable" axis in plot
-        plt.xticks([]), plt.yticks([])
-        plt.use_sticky_edges = True
-        plt.margins(0)
-        plt.specgram(list(arr), NFFT=10000, Fs=10, noverlap=5, detrend='mean', mode='psd')
-        fig = plt.figure(1, tight_layout=True)
-        fig.canvas.draw()
-        fig.tight_layout(pad=0)
+def preprocess(curr_data):
+    curr_data = np.array(curr_data)
 
-        # Now we can save it to a numpy array.
-        data = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8, sep='')
-        data = data.reshape((3,) + fig.canvas.get_width_height()[::-1])
+    freqs = curr_data[3:]
+    freqs_image = freqs.reshape(100, -1)
 
-        return data
-    
+    stage = curr_data[1]
+    temperature = curr_data[2]
+
+    stage_channel = np.full(freqs_image.shape, stage, dtype=np.int8)
+    temperature_channel = np.full(freqs_image.shape, temperature, dtype=np.float)
+
+    freqs_image = freqs_image[np.newaxis, :, :]
+    stage_channel = stage_channel[np.newaxis, :, :]
+    temperature_channel = temperature_channel[np.newaxis, :, :]
+    # print('freq', freqs_image.shape)
+    # print('stage', stage_channel.shape)
+    # print('temp', temperature_channel.shape)
+
+    freqs_image = np.concatenate((freqs_image, stage_channel), axis=0)
+    freqs_image = np.concatenate((freqs_image, temperature_channel), axis=0)
+    return freqs_image
+
 
 def create_semisupervised_setting(labels, normal_classes, outlier_classes, known_outlier_classes,
                                   ratio_known_normal, ratio_known_outlier, ratio_pollution):
