@@ -11,7 +11,7 @@ import warnings
 warnings.filterwarnings("ignore")
 
 
-def main(root, dataset_name, output_model_name, xp_path, network, optimizer_name, c, eta, lr, n_epochs, batch_size, lr_milestones, weight_decay,
+def main(xp_path, network, optimizer_name, c, eta, lr, n_epochs, batch_size, lr_milestones, weight_decay,
          ae_optimizer_name, ae_lr, ae_n_epochs, ae_lr_milestone, ae_batch_size, ae_weight_decay,
          device, n_jobs_dataloader, stage_n_degc=None):
     """
@@ -23,20 +23,14 @@ def main(root, dataset_name, output_model_name, xp_path, network, optimizer_name
     logger.setLevel(logging.INFO)
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     log_file = xp_path + '/log.txt'
-    #export_model = xp_path + '/models/DeepSADModel.tar'
-    export_model = xp_path + '/models/' + output_model_name
+    export_model = xp_path + '/models/DeepSADModel.tar'
     file_handler = logging.FileHandler(log_file)
     file_handler.setLevel(logging.INFO)
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
 
-    # train_set = LGDataset(root='/workspace/eddie/ai_championship/data',
-    #                       dataset_name='lg_train',
-    #                       train=True,
-    #                       random_state=None,
-    #                       stage_n_degc=False)
-    train_set = LGDataset(root=root,
-                          dataset_name=dataset_name,
+    train_set = LGDataset(root='/workspace/eddie/ai_championship/data',
+                          dataset_name='lg_train',
                           train=True,
                           random_state=None,
                           stage_n_degc=False)
@@ -52,13 +46,8 @@ def main(root, dataset_name, output_model_name, xp_path, network, optimizer_name
     train_set.semi_targets[idx] = torch.tensor(semi_targets, dtype=torch.int32)
     train_set = Subset(train_set, idx)
 
-    # test_set = LGDataset(root='/workspace/eddie/ai_championship/data',
-    #                      dataset_name='lg_train',
-    #                      train=False,
-    #                      random_state=None,
-    #                      stage_n_degc=False)
-    test_set = LGDataset(root=root,
-                         dataset_name=dataset_name,
+    test_set = LGDataset(root='/workspace/eddie/ai_championship/data',
+                         dataset_name='lg_train',
                          train=False,
                          random_state=None,
                          stage_n_degc=False)
@@ -100,24 +89,22 @@ def main(root, dataset_name, output_model_name, xp_path, network, optimizer_name
     
 
 if __name__ == "__main__":
-    main(root='/workspace/eddie/ai_championship/data',
-         dataset_name='sampled',
-         output_model_name='deepSADModel.tar',
-         xp_path='/workspace/eddie/ai_championship/log',
+
+    main(xp_path='/workspace/ai_championship/log',
          network='LG',
          optimizer_name='Adam',
          c=0.01,
          eta=0.01,
          lr=0.01,
-         n_epochs=30,
-         batch_size=5,
+         n_epochs=10,
+         batch_size=10,
          lr_milestones=(2, 5,),
          weight_decay=0.5e-3,
          ae_optimizer_name='Adam',
          ae_lr=0.1,
-         ae_n_epochs=30,
+         ae_n_epochs=10,
          ae_lr_milestone=(2, 5,),
-         ae_batch_size=5,
+         ae_batch_size=10,
          ae_weight_decay=0.5e-2,
          device='cuda',
          n_jobs_dataloader=4,

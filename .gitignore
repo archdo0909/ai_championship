@@ -7,4 +7,3 @@ log/
 # files
 *.pyc
 data/*.swp
-data/aug_6k
