@@ -45,6 +45,7 @@ class SampleTrainer():
             n_batches = 0
             epoch_start_time = time.time()
             for data in train_loader:
+                print(f"training : {n_batches} / {len(train_loader)}", end='\r', flush=True)
                 inputs, targets, _, _ = data
                 inputs = inputs.to(self.device)
                 targets = targets.to(self.device)
@@ -142,6 +143,7 @@ class DeepSADTrainer():
             n_batches = 0
             epoch_start_time = time.time()
             for data in train_loader:
+                print(f"training : {n_batches} / {len(train_loader)}", end='\r', flush=True)
                 inputs, _, semi_targets, _ = data
                 inputs, semi_targets = inputs.to(self.device), semi_targets.to(self.device)
 
@@ -305,6 +307,7 @@ class AETrainer():
             n_batches = 0
             epoch_start_time = time.time()
             for data in train_loader:
+                print(f"AE training : {n_batches} / {len(train_loader)}", end='\r', flush=True)
                 inputs, _, _, _ = data
                 inputs = inputs.to(self.device)
 
