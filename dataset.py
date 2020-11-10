@@ -89,8 +89,8 @@ class LGDataset(Dataset):
         if self.dataset_name == "lg_train":
             base_file_name = "_FLD165NBMA_vib_spectrum_modi_train_"
            
-        if self.dataset_name == "sampled":
-            base_file_name = "combine"
+        if self.dataset_name == "aug_6k":
+            base_file_name = "sampled"
 
         sample, target = self.data[index], int(self.targets[index])
         measuretime = self.data[index][0]
@@ -100,8 +100,8 @@ class LGDataset(Dataset):
             # search Hz data
             target_fname = str(measuretime[:6]) + base_file_name + str(file_num) + ".txt"
 
-        if self.dataset_name == "sampled":
-            target_fname = "combine" + ".txt"
+        if self.dataset_name == "aug_6k":
+            target_fname = "sampled" + ".txt"
 
         f = open(self.folder_path / target_fname, 'r')
         while 1:
@@ -109,7 +109,7 @@ class LGDataset(Dataset):
             if not line:
                 break
             if measuretime in line:
-                sample = line.strip().split('\t')[4:-1]
+                sample = line.strip().split('\t')[1:-1]
         f.close()
 
         target = int(self.targets[index])
@@ -122,16 +122,3 @@ class LGDataset(Dataset):
 
     def __len__(self):
         return len(self.data)
-
-    # def feature_layer(self, features):
-        
-    #     stage = int(re.findall("\d+", features[0])[0])
-    #     degc = float(features[1])
-
-    #     stage_layer = np.full((224,224), stage, dtype = np.int8)
-    #     degc_layer = np.full((224,224), degc, dtype = np.float)
-
-    #     stage_layer = stage_layer[np.newaxis,:,:]
-    #     degc_layer = degc_layer[np.newaxis,:,:]
-
-    #     return stage_layer, degc_layer
