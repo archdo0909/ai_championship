@@ -5,6 +5,16 @@ import torch
 import numpy as np
 
 
+# TODO: ensemble
+def predict_ensemble():
+    pass
+
+
+# TODO: predict supervised models
+def predict_():
+    pass
+
+
 def predict(model_path, data_path):
 
     model_dict = torch.load(model_path, map_location='cpu')
