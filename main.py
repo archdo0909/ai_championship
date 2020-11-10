@@ -1,13 +1,16 @@
 from torch.utils.data import DataLoader
+
 from dataset import LGDataset
+
 from train import SampleTrainer
+from test import SampleTester
 from model import build_network
 
 import torch
 import logging
 
 
-def main(data_path, data_name, xp_path, network, lr, n_epochs, batch_size, device, n_jobs_dataloader, stage_n_degc=None):
+def main(data_path, data_name, xp_path, network, lr, n_epochs, batch_size, device, n_jobs_dataloader, stage_n_degc=None, train=True):
     """
         xp_path : 결과물 출력할 폴더의 절대 경로
     """
@@ -22,34 +25,58 @@ def main(data_path, data_name, xp_path, network, lr, n_epochs, batch_size, devic
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
 
-    train_set = LGDataset(root=data_path,
-                          dataset_name=data_name,
-                          train=True,
-                          random_state=None,
-                          stage_n_degc=True)
-    test_set = LGDataset(root=data_path,
-                         dataset_name=data_name,
-                         train=False,
-                         random_state=None)
-
-    sample_train = SampleTrainer(lr=lr, n_epochs=n_epochs, batch_size=batch_size,
-                                 device=device, n_jobs_dataloader=n_jobs_dataloader)
-
-    # Register your network in model.py
-    net = build_network(network)
-    print("network prepared")
-
-    sample_train.train(train_set, net)
+    # TODO: Split dataset
+    
+    if train:
+        train_set = LGDataset(
+            root=data_path,
+            dataset_name=data_name,
+            train=True,
+            random_state=None,
+            stage_n_degc=True
+        )
+        sample_train = SampleTrainer(
+            lr=lr, n_epochs=n_epochs, batch_size=batch_size,
+            device=device, n_jobs_dataloader=n_jobs_dataloader
+        )
+        network = build_network(network)
+        sample_train.train(train_set, network)
+    else:
+        test_set = LGDataset(
+            root=data_path,
+            dataset_name=data_name,
+            train=False,
+            random_state=None
+        )
+        sample_test = SampleTester(
+            lr=lr, n_epochs=n_epochs, batch_size=batch_size,
+            device=device, n_jobs_dataloader=n_jobs_dataloader
+        )
+        network = build_network(network)
+        sample_test.test(test_set, network)
 
 if __name__ == "__main__":
+    # train
+    main(data_path='/workspace/ai_championship/data',
+        data_name='sampled',
+        xp_path='/workspace/ai_championship/log',
+        network='resnet',
+        lr=0.001,
+        n_epochs=100,
+        batch_size=16,
+        device='cuda',
+        n_jobs_dataloader=4,
+        stage_n_degc=True)
 
+    # test
     main(data_path='/workspace/ai_championship/data',
          data_name='sampled',
          xp_path='/workspace/ai_championship/log',
          network='resnet',
          lr=0.001,
-         n_epochs=5,
-         batch_size=2,
+         n_epochs=100,
+         batch_size=16,
          device='cuda',
          n_jobs_dataloader=4,
-         stage_n_degc=True)
+         stage_n_degc=True,
+         train=False)

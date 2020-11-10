@@ -10,7 +10,7 @@ import numpy as np
 from datetime import datetime
 
 
-class SampleTrainer():
+class SampleTrainer:
     
     def __init__(self, lr: float = 0.001, n_epochs: int = 150, batch_size: int = 128,
                  device: str = 'cuda', n_jobs_dataloader: int = 0):

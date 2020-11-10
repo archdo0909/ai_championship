@@ -109,7 +109,8 @@ class LGDataset(Dataset):
             if not line:
                 break
             if measuretime in line:
-                sample = line.strip().split('\t')[4:-1]
+                # TODO: Investigate?
+                sample = line.strip().split('\t')[1:-1]
         f.close()
 
         target = int(self.targets[index])
