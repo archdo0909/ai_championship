@@ -4,7 +4,7 @@ import numpy as np
 def preprocess(curr_data):
     curr_data = np.array(curr_data)
 
-    freqs = curr_data[3:]
+    freqs = curr_data
     freqs_image = freqs.reshape(100, -1)
 
     stage = curr_data[1]
