@@ -9,21 +9,10 @@ class Resnet(nn.Module):
     def __init__(self):
         super(Resnet, self).__init__()
         self.model = resnet18(pretrained=True)
-        self.num_ftrs = self.model.fc.in_features
-        # self.model.conv1 = nn.Conv2d(5, 64, kernel_size=3) # 인풋 레이어 5채널로 수정
-        self.model.fc = nn.Linear(self.num_ftrs, 2) # 마지막 레이어 아웃풋 2로 수정(정상, 불량)
-        print(self.model)
+        self.model.fc = nn.Linear(self.model.fc.in_features, 2)
 
     def forward(self, x):
-        # x = self.model.conv1
-        # x = x.view(-1, 5, 224, 224)
-        # x = F.relu(self.model.conv1(x))
-        x = self.model(x)
-        # x = F.relu(self.model(x))
-        # x = x.view(-1, self.num_flat_features(x))
-        # x = F.relu(self.model.fc(x))
-
-        return x
+        return self.model(x)
 
 
 class VanillaCNN(nn.Module):
