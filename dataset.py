@@ -70,10 +70,10 @@ class LGDataset(Dataset):
 
         if self.train:
             self.data = X_train
-            self.targets = torch.tensor(y_train)
+            self.targets = torch.tensor(y_train, dtype=torch.int32)
         else:
             self.data = X_test
-            self.targets = torch.tensor(y_test)
+            self.targets = torch.tensor(y_test, dtype=torch.int32)
 
         self.semi_targets = torch.zeros_like(self.targets)
 
@@ -109,7 +109,7 @@ class LGDataset(Dataset):
             if not line:
                 break
             if measuretime in line:
-                sample = line.strip().split('\t')[1:-1]
+                sample = line.strip().split('\t')[4:-1]
         f.close()
 
         target = int(self.targets[index])
