@@ -63,7 +63,3 @@ class SampleTester:
 
         torch.save(net.state_dict(), "/workspace/ai_championship/log/models/sample_test.pt")
         return net
-
-
-if __name__ == "__main__":
-    inference_test('/workspace/ai_championship/log/models/sample_train2.pt', '/workspace/ai_championship', 'data')
