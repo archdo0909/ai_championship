@@ -127,12 +127,15 @@ class LGDataset(Dataset):
 
 class SupervisedDataset(Dataset):
 
-    def __init__(self, datafile, train=True):
+    def __init__(self, root, dataset_name=None, train=True, random_state=42, stage_n_degc=True):
         super(Dataset, self).__init__()
+        datafile = root
 
         data = None
         with open(datafile, "r") as f:
-            data = np.array([line.strip().split('\t') for line in f.readlines()])
+            data = np.array(
+                [line.strip().split('\t') for line in f.readlines()], dtype=np.float32
+            )
         
         X = data[:, 1:]
         y = np.int32(data[:, 0])
@@ -155,7 +158,10 @@ class SupervisedDataset(Dataset):
             self.y_ = y_test
 
     def __getitem__(self, index):
-        return self.X_[index], self.y_[index]
+        curr_X = self.X_[index]
+        image_reshaped = preprocess(curr_X)
+        tensor_image = torch.tensor(image_reshaped, dtype=torch.float32)
+        return tensor_image, int(self.y_[index]), None, None
 
     def __len__(self):
         return len(self.X_)
