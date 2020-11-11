@@ -161,7 +161,7 @@ class SupervisedDataset(Dataset):
         curr_X = self.X_[index]
         image_reshaped = preprocess(curr_X)
         tensor_image = torch.tensor(image_reshaped, dtype=torch.float32)
-        return tensor_image, int(self.y_[index]), None, None
+        return tensor_image, self.y_[index]
 
     def __len__(self):
         return len(self.X_)

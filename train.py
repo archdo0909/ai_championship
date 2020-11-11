@@ -45,9 +45,11 @@ class SampleTrainer:
             n_batches = 0
             epoch_start_time = time.time()
             for data in train_loader:
-                inputs, targets, _, _ = data
+                inputs, targets, *_ = data
+                targets = targets.long()
                 inputs = inputs.to(self.device)
                 targets = targets.to(self.device)
+
                 # Zero the network parameter gradients
                 optimizer.zero_grad()
 
