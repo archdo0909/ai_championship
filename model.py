@@ -8,7 +8,10 @@ from torchvision.models import resnet18, resnet34
 class Resnet(nn.Module):
     def __init__(self):
         super(Resnet, self).__init__()
+        self.conv_in = nn.Conv2d(3, 16, 3, padding=1)
         self.model = resnet18(pretrained=True)
+
+        self.model.conv1 = nn.Conv2d(5, 64, 3, padding=1)
         self.model.fc = nn.Linear(self.model.fc.in_features, 2)
 
     def forward(self, x):

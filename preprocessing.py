@@ -6,19 +6,29 @@ def preprocess(curr_X):
     freqs = curr_X[3:-1]
     freqs_image = freqs.reshape(100, -1)
 
+    time_str = str(int(curr_X[0]))
+    month = int(time_str[3:5])
+    month_channel = np.full(freqs_image.shape, month, dtype=np.int8)
+    hour = int(time_str[7:9]) 
+    hour_channel = np.full(freqs_image.shape, hour, dtype=np.int8)
+
     stage = curr_X[1]
     temperature = curr_X[2]
     stage_channel = np.full(freqs_image.shape, stage, dtype=np.int8)
     temperature_channel = np.full(freqs_image.shape, temperature, dtype=np.float)
 
     freqs_image = freqs_image[np.newaxis, :, :]
+    month_channel = month_channel[np.newaxis, :, :]
+    hour_channel = hour_channel[np.newaxis, :, :]
     stage_channel = stage_channel[np.newaxis, :, :]
     temperature_channel = temperature_channel[np.newaxis, :, :]
 
+    freqs_image = np.concatenate((freqs_image, month_channel), axis=0)
+    freqs_image = np.concatenate((freqs_image, hour_channel), axis=0)
     freqs_image = np.concatenate((freqs_image, stage_channel), axis=0)
     freqs_image = np.concatenate((freqs_image, temperature_channel), axis=0)
+    print(freqs_image.shape)
     return freqs_image
-
 
 def create_semisupervised_setting(labels, normal_classes, outlier_classes, known_outlier_classes,
                                   ratio_known_normal, ratio_known_outlier, ratio_pollution):
