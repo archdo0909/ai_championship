@@ -4,23 +4,18 @@ import torch.nn.functional as F
 
 import torchvision.models as models
 
+from model import Resnet
+from model import VanillaCNN
+
 
 class EnsembleNetwork(nn.Module):
-    def __init__(self, model_1, model_2, model_3):
+    def __init__(self, model_1, model_2):
         super(EnsembleNetwork, self).__init__()
         self.model_1 = model_1
         self.model_2 = model_2
-        self.model_3 = model_3
-
-        # Remove the Last layer
-        self.model_1 = nn.Identity()
-        self.model_2 = nn.Identity()
-        self.model_3 = nn.Identity()
 
         # classifier
-        self.classifier = nn.Linear(
-            752640, 1
-        )
+        self.classifier = nn.Linear(2000, 1)
 
     def forward(self, x):
         # clone to make sure x is not changed by inplace methods
@@ -30,21 +25,18 @@ class EnsembleNetwork(nn.Module):
         x2 = self.model_2(x)
         x2 = x2.view(x2.size(0), -1)
 
-        x3 = self.model_3(x)
-        x3 = x3.view(x3.size(0), -1)
-
         # final
-        x = torch.cat((x1, x2, x3), dim=1)
+        x = torch.cat((x1, x2), dim=1)
         x = F.relu(x)
         x = self.classifier(x)
+        x = nn.Sigmoid()(x)
         return x
 
 
 if __name__ == '__main__':
-    # We use pretrained torchvision models here
+    # Load our supervised models here
     modelA = models.resnet50(pretrained=True)
     modelB = models.resnet18(pretrained=True)
-    modelC = models.resnet18(pretrained=True)
 
     # Freeze these models
     for param in modelA.parameters():
@@ -53,14 +45,11 @@ if __name__ == '__main__':
     for param in modelB.parameters():
         param.requires_grad_(False)
 
-    for param in modelC.parameters():
-        param.requires_grad_(False)
-
     # Create ensemble model
-    model = EnsembleNetwork(modelA, modelB, modelC)
+    model = EnsembleNetwork(modelA, modelB)
 
     # Load input
-    x = torch.randn(1, 5, 224, 224)
+    x = torch.randn(1, 3, 224, 224)
 
     # Make prediction
     output = model(x)
