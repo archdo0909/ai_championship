@@ -4,6 +4,8 @@ from dataset import LGDataset
 from preprocessing import preprocess
 from train import DeepSADTrainer
 
+from utils.visualization.plot_images_grid import plot_images_grid
+
 import time
 import torch
 import numpy as np
@@ -153,4 +155,12 @@ if __name__ == "__main__":
     idx_all_sorted = indices[np.argsort(scores)]  # from lowest to highest score
     idx_normal_sorted = indices[labels == 0][np.argsort(scores[labels == 0])]  # from lowest to highest score
 
-    
+    X_all_low = torch.tensor(np.transpose(dataset.test_set.data[idx_all_sorted[:32], ...], (0,3,1,2)))
+    X_all_high = torch.tensor(np.transpose(dataset.test_set.data[idx_all_sorted[-32:], ...], (0,3,1,2)))
+    X_normal_low = torch.tensor(np.transpose(dataset.test_set.data[idx_normal_sorted[:32], ...], (0,3,1,2)))
+    X_normal_high = torch.tensor(np.transpose(dataset.test_set.data[idx_normal_sorted[-32:], ...], (0,3,1,2)))
+
+    plot_images_grid(X_all_low, export_img=xp_path + '/all_low', padding=2)
+    plot_images_grid(X_all_high, export_img=xp_path + '/all_high', padding=2)
+    plot_images_grid(X_normal_low, export_img=xp_path + '/normals_low', padding=2)
+    plot_images_grid(X_normal_high, export_img=xp_path + '/normals_high', padding=2)
