@@ -49,6 +49,27 @@ def predict_(model_path, data_path):
     print(matrix)
 
 
+    total=sum(sum(matrix))
+    #####from confusion matrix calculate accuracy
+    accuracy=(matrix[0,0]+matrix[1,1])/total
+    print ('Accuracy : ', accuracy)
+
+    sensitivity = matrix[0,0]/(matrix[0,0]+matrix[0,1])
+    print('Sensitivity : ', sensitivity )
+
+    specificity = matrix[1,1]/(matrix[1,0]+matrix[1,1])
+    print('Specificity(recall) : ', specificity)
+
+    precision = matrix[0,0]/(matrix[0,0]+matrix[1,0])
+    print('Precision : ', precision)
+
+    f1 = 2 * (precision * sensitivity) /  (precision+ sensitivity)
+    print('F1 Score : ', f1)
+
+    print("\n\nSensitivity or recall: TP / (TP + FN)     // 맞는 케이스에 대해 얼마나 많이 맞다고 실제로 예측했나?")
+    print("Specificity: TN / (FP + TN)     // 틀린 케이스에 대해 얼마나 틀리다고 실제로 예측했나?")
+    print("Precision: TP / (TP + FP)     // 맞다고 예측 한 것 중에 실제로 정답이 얼마나 되나?")
+
     fig, ax = plot_confusion_matrix(conf_mat=matrix,
                                 show_absolute=True,
                                 show_normed=True,
