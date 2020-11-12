@@ -1,8 +1,11 @@
 from model import build_network
-from preprocessing import Spectrogram
-
+from preprocessing import preprocess
+from torch.utils.data import DataLoader
 import torch
 import numpy as np
+from mlxtend.plotting import plot_confusion_matrix
+import matplotlib.pyplot as plt
+from sklearn.metrics import confusion_matrix
 
 
 # TODO: ensemble
@@ -11,8 +14,47 @@ def predict_ensemble():
 
 
 # TODO: predict supervised models
-def predict_():
-    pass
+def predict_(model_path, data_path):
+    net = build_network('resnet')
+    net.load_state_dict(torch.load(model_path))
+    net.eval()
+
+    # file open
+    label_true = []
+    label_pred = []
+    f = open(data_path, 'r')
+    while 1: 
+        line = f.readline()
+        if not line:
+            break
+        
+        #label
+        label_true.append(int(line[0]))
+        # data
+        data = np.array(line[1:].strip().split('\t'), dtype=np.float32)
+        # preprocess each line
+        freqs_image = preprocess(data)
+        freqs_image = torch.Tensor(freqs_image).unsqueeze(0)
+
+        # predict
+        output = net(freqs_image)
+        output = torch.argmax(output, 1)
+        label_pred.append(int(output))
+        # print(int(output))
+
+    print('label_true : ', label_true)
+    print('label_pred : ', label_pred)
+    # ploting confusion matrix
+    matrix = confusion_matrix(label_true, label_pred)
+    print(matrix)
+
+
+    fig, ax = plot_confusion_matrix(conf_mat=matrix,
+                                show_absolute=True,
+                                show_normed=True,
+                                colorbar=True)
+    plt.plot()
+    plt.savefig('/workspace/confusion.png')
 
 
 def predict(model_path, data_path):
@@ -72,5 +114,7 @@ def read_data(data_path):
 
 if __name__ == "__main__":
 
-    predict(model_path="/workspace/ai_championship/log/models/DeepSADModel.tar",
+    # predict(model_path="/workspace/ai_championship/log/models/DeepSADModel.tar",
+            # data_path="/workspace/ai_championship/data/sample_data.txt")
+    predict_(model_path="/workspace/ai_championship/log/models/sample_train.pt",
             data_path="/workspace/ai_championship/data/sample_data.txt")
