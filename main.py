@@ -41,7 +41,9 @@ def main(data_path, data_name, xp_path, network, lr, n_epochs, batch_size, devic
             device=device, n_jobs_dataloader=n_jobs_dataloader
         )
         network = build_network(network)
-        sample_train.train(train_set, network)
+        network_trained = sample_train.train(train_set, network)
+        torch.save(network_trained.state_dict(), '/workspace/jinsung/x')
+
     else:
         test_set = ds(
             root=data_path,
@@ -54,6 +56,7 @@ def main(data_path, data_name, xp_path, network, lr, n_epochs, batch_size, devic
             device=device, n_jobs_dataloader=n_jobs_dataloader
         )
         network = build_network(network)
+        network.load_state_dict(torch.load('/workspace/jinsung/x'))
         sample_test.test(test_set, network)
 
 if __name__ == "__main__":
