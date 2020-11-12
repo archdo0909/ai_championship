@@ -14,7 +14,7 @@ def predict_ensemble():
 
 
 # TODO: predict supervised models
-def predict_(model_path, data_path):
+def predict_supervised(model_path, data_path):
     net = build_network('resnet')
     net.load_state_dict(torch.load(model_path))
     net.eval()
@@ -46,7 +46,8 @@ def predict_(model_path, data_path):
     print('label_pred : ', label_pred)
     # ploting confusion matrix
     matrix = confusion_matrix(label_true, label_pred)
-    print(matrix)
+    print('confusion matrix : ', matrix)
+
 
 
     total=sum(sum(matrix))
@@ -137,5 +138,5 @@ if __name__ == "__main__":
 
     # predict(model_path="/workspace/ai_championship/log/models/DeepSADModel.tar",
             # data_path="/workspace/ai_championship/data/sample_data.txt")
-    predict_(model_path="/workspace/ai_championship/log/models/sample_train.pt",
+    predict_supervised(model_path="/workspace/ai_championship/log/models/sample_train.pt",
             data_path="/workspace/ai_championship/data/sample_data.txt")
