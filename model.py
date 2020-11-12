@@ -15,32 +15,19 @@ class Resnet(nn.Module):
         self.model.fc = nn.Linear(self.model.fc.in_features, 2)
 
     def forward(self, x):
-        return self.model(x)
+        return F.sigmoid(self.model(x))
 
 
 class VanillaCNN(nn.Module):
     def __init__(self):
         super(VanillaCNN, self).__init__()
 
-        self.model = resnet34(pretrained=True)        
-        self.fc = nn.Linear(512, 2)
+        self.model = resnet34(pretrained=True)  
+        self.model.conv1 = nn.Conv2d(5, 64, 3, padding=1)
+        self.model.fc = nn.Linear(self.model.fc.in_features, 2)
     
     def forward(self, x):
-        x = x.view(-1, 3, 224, 224)
-        x = F.relu(self.model(x))
-        x = x.view(-1, self.num_flat_features(x))
-        x = F.relu(self.fc(x))
-
-        return F.log_softmax(x, dim=1)
-    
-    def num_flat_features(self, x):
-        size = x.size()[1:]
-        num_features = 1
-
-        for s in size:
-            num_features *= s
-
-        return num_features
+        return F.sigmoid(self.model(x))
 
 
 class UNet(nn.Module):
