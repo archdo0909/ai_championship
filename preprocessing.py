@@ -27,7 +27,7 @@ def preprocess(curr_X):
     freqs_image = np.concatenate((freqs_image, hour_channel), axis=0)
     freqs_image = np.concatenate((freqs_image, stage_channel), axis=0)
     freqs_image = np.concatenate((freqs_image, temperature_channel), axis=0)
-    print(freqs_image.shape)
+    # print(freqs_image.shape)
     return freqs_image
 
 def create_semisupervised_setting(labels, normal_classes, outlier_classes, known_outlier_classes,
