@@ -15,7 +15,7 @@ class EnsembleNetwork(nn.Module):
         self.model_2 = model_2
 
         # classifier
-        self.classifier = nn.Linear(2000, 1)
+        self.classifier = nn.Linear(4, 1)
 
     def forward(self, x):
         # clone to make sure x is not changed by inplace methods
@@ -35,8 +35,11 @@ class EnsembleNetwork(nn.Module):
 
 if __name__ == '__main__':
     # Load our supervised models here
-    modelA = models.resnet50(pretrained=True)
-    modelB = models.resnet18(pretrained=True)
+    modelA = Resnet()
+    modelB = VanillaCNN()
+
+    modelA.load_state_dict(torch.load('/workspace/jinsung/y'))
+    modelB.load_state_dict(torch.load('/workspace/jinsung/x'))
 
     # Freeze these models
     for param in modelA.parameters():
@@ -48,8 +51,8 @@ if __name__ == '__main__':
     # Create ensemble model
     model = EnsembleNetwork(modelA, modelB)
 
-    # Load input
-    x = torch.randn(1, 3, 224, 224)
+    # TODO: Load an actual input
+    x = torch.randn(1, 5, 100, 100)
 
     # Make prediction
     output = model(x)
