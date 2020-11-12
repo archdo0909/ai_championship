@@ -39,6 +39,7 @@ def predict(model_path, data_path):
 
     return output
 
+
 def test(model_path, dataset, batch_size, num_workers, eps, eta):
 
     model_dict = torch.load(model_path, map_location='cpu')
@@ -99,10 +100,11 @@ def test(model_path, dataset, batch_size, num_workers, eps, eta):
     labels = np.array(labels)
     scores = np.array(scores)
 
-    print("Test Loss : {:.6f}".format(epoch_loss/n_batches))
+    print("Test Loss : {:.6f}".format(epoch_loss / n_batches))
     print("Test time : {:.3f}s".format(test_time))
 
-    return outlier_dist
+    return test_scores
+
 
 def read_data(data_path):
 
@@ -132,3 +134,23 @@ if __name__ == "__main__":
         model_path="/workspace/eddie/ai_championship/log/models/deepSADModel.tar",
         data_path="/workspace/ai_championship/data/sample_data.txt",
     )
+
+    test_set = LGDataset(root="/work/eddie_study/deep-sad-6k/data",
+                         dataset_name="aug_6k",
+                         train=False,
+                         random_state=None,
+                         stage_n_degc=False)
+
+    test_scores = test(model_path="/work/eddie_study/deep-sad-6k/log/models/aug_6k_set.tar",
+                       dataset=test_set,
+                       batch_size=64,
+                       num_workers=4,
+                       eps=1e-6,
+                       eta=0.01)
+
+    indices, labels, scores = zip(test_scores)
+    indices, labels, scores = np.array(indices), np.array(labels), np.array(scores)
+    idx_all_sorted = indices[np.argsort(scores)]  # from lowest to highest score
+    idx_normal_sorted = indices[labels == 0][np.argsort(scores[labels == 0])]  # from lowest to highest score
+
+    

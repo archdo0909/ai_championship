@@ -23,7 +23,7 @@ def main(root, dataset_name, output_model_name, xp_path, network, optimizer_name
     logger.setLevel(logging.INFO)
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     log_file = xp_path + '/log.txt'
-    export_model = xp_path + '/models/DeepSADModel.tar'
+    export_model = xp_path + '/models/' + output_model_name
     file_handler = logging.FileHandler(log_file)
     file_handler.setLevel(logging.INFO)
     file_handler.setFormatter(formatter)
@@ -102,22 +102,22 @@ if __name__ == "__main__":
 
     main(root='/workspace/eddie/ai_championship/data',
          dataset_name='aug_6k',
-         output_model_name='deepSADModel_6k.tar',
+         output_model_name='deepSADModel_6k_10ep_64batch.tar',
          xp_path='/workspace/eddie/ai_championship/log',
          network='LG',
          optimizer_name='Adam',
-         c=0.01,
-         eta=0.01,
-         lr=0.01,
-         n_epochs=30,
-         batch_size=5,
-         lr_milestones=(2, 5,),
+         c=0.001,
+         eta=0.001,
+         lr=0.0001,
+         n_epochs=10,
+         batch_size=64,
+         lr_milestones=(2, 5, 10,),
          weight_decay=0.5e-3,
          ae_optimizer_name='Adam',
-         ae_lr=0.1,
-         ae_n_epochs=30,
-         ae_lr_milestone=(2, 5,),
-         ae_batch_size=5,
+         ae_lr=0.001,
+         ae_n_epochs=10,
+         ae_lr_milestone=(2, 5, 10,),
+         ae_batch_size=64,
          ae_weight_decay=0.5e-2,
          device='cuda',
          n_jobs_dataloader=4,
