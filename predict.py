@@ -1,8 +1,9 @@
 from model import build_network
-from preprocessing import Spectrogram
+from preprocessing import preprocess
 
 import torch
 import numpy as np
+
 
 def predict(model_path, data_path):
 
@@ -12,7 +13,7 @@ def predict(model_path, data_path):
     net = build_network('LG_LeNet')
     net.load_state_dict(model_dict['net_dict'])
     outlier_dist = model_dict['outlier_dist']
-    
+
     ae_net = build_network('LG_LeNet_Autoencoder')
     ae_net.load_state_dict(model_dict['ae_net_dict'])
 
@@ -26,18 +27,16 @@ def predict(model_path, data_path):
         if dist > outlier_dist:
             label = 1
             print(print(f"label:{label}, abnormal"))
+            print("dist : ", dist)
         else:
             label = 0
             print(print(f"label:{label}, normal"))
-
-    # print(f"Show output : {output}")
+            print("dist : ", dist)
 
     return output
 
 
 def read_data(data_path):
-
-    sp = Spectrogram()
 
     data = []
     f = open(data_path, 'r')
@@ -45,7 +44,7 @@ def read_data(data_path):
         line = f.readline()
         if not line:
             break
-        sample = line.strip().split('\t')[4:-1]
+        sample = line.strip().split('\t')[1:-1]
         data.append(sample)
     f.close()
     # data = list(map(float, data))
@@ -53,7 +52,7 @@ def read_data(data_path):
     img = []
     for i in range(len(data)):
         data[i] = list(map(float, data[i]))
-        array = sp.spec_array(data[i])
+        array = preprocess(data[i])
         img.append(array)
 
     return img
@@ -61,5 +60,5 @@ def read_data(data_path):
 
 if __name__ == "__main__":
 
-    predict(model_path="/workspace/ai_championship/log/models/DeepSADModel.tar",
+    predict(model_path="/workspace/eddie/ai_championship/log/models/deepSADModel.tar",
             data_path="/workspace/ai_championship/data/sample_data.txt")
