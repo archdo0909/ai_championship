@@ -43,7 +43,7 @@ class UNet(nn.Module):
             nn.Dropout(0.05),
         )   
 
-    def __init__(self, in_channels, out_channels):
+    def __init__(self, in_channels=5, out_channels=1):
         super().__init__()
                 
         self.dconv_down1 = self.double_conv(in_channels, 64)
@@ -239,7 +239,7 @@ def build_network(network_name):
     network = {
         'resnet': Resnet(),
         'VanillaCNN': VanillaCNN(),
-        # 'UNet': UNet(),
+        'UNet': UNet(),
         # 'CRNN': CRNN(),
         'LG_LeNet': LG_LeNet(),
         'LG_LeNet_Autoencoder': LG_LeNet_Autoencoder(),
