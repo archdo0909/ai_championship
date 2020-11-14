@@ -59,12 +59,13 @@ def main(data_path, data_name, xp_path, network, lr, n_epochs, batch_size, devic
         network.load_state_dict(torch.load('/workspace/jinsung/y'))
         sample_test.test(test_set, network)
 
+
 if __name__ == "__main__":
     # train
     main(data_path='/workspace/peter/sampled/sampled.txt',
         data_name='sampled',
         xp_path='/workspace/ai_championship/log',
-        network='UNet',
+        network='CRNN',
         lr=0.001,
         n_epochs=10,
         batch_size=16,
@@ -77,7 +78,7 @@ if __name__ == "__main__":
     main(data_path='/workspace/peter/sampled/sampled.txt',
          data_name='sampled',
          xp_path='/workspace/ai_championship/log',
-         network='UNet',
+         network='CRNN',
          lr=0.001,
          n_epochs=10,
          batch_size=16,

@@ -22,7 +22,7 @@ class VanillaCNN(nn.Module):
     def __init__(self):
         super(VanillaCNN, self).__init__()
 
-        self.model = resnet34(pretrained=True)  
+        self.model = resnet34(pretrained=True)
         self.model.conv1 = nn.Conv2d(5, 64, 3, padding=1)
         self.model.fc = nn.Linear(self.model.fc.in_features, 2)
     
@@ -95,11 +95,10 @@ class UNet(nn.Module):
         return F.sigmoid(x)
 
 
-class CRNN(nn.Module):
-    class BidirectionalLSTM(nn.Module):
+class BidirectionalLSTM(nn.Module):
 
         def __init__(self, nIn, nHidden, nOut):
-            super(self.BidirectionalLSTM, self).__init__()
+            super(BidirectionalLSTM, self).__init__()
 
             self.rnn = nn.LSTM(nIn, nHidden, bidirectional=True)
             self.embedding = nn.Linear(nHidden * 2, nOut)
@@ -114,7 +113,9 @@ class CRNN(nn.Module):
 
             return output
 
-    def __init__(self, imgH, nc, nclass, nh, n_rnn=2, leakyRelu=False):
+class CRNN(nn.Module):
+    
+    def __init__(self, imgH=112, nc=5, nclass=2, nh=3, n_rnn=2, leakyRelu=False):
         super(CRNN, self).__init__()
         assert imgH % 16 == 0, 'imgH has to be a multiple of 16'
 
@@ -154,21 +155,28 @@ class CRNN(nn.Module):
 
         self.cnn = cnn
         self.rnn = nn.Sequential(
-            self.BidirectionalLSTM(512, nh, nh),
-            self.BidirectionalLSTM(nh, nh, nclass)
+            BidirectionalLSTM(512, nh, nh),
+            BidirectionalLSTM(nh, nh, nclass)
         )
 
     def forward(self, input):
+        # reshape mini-batched tensor when reshaping, take pixel's region account
+        input = F.interpolate(input, size=(128, 128), mode='bicubic', align_corners=False)
+        
         # conv features
-        conv = self.cnn(input)
+        conv = self.cnn(input) # 6 512 7 33 : conv.shape
+        b, c, x, y = conv.shape
+        #conv = F.interpolate(conv, size=(b, c, 1, y), mode='bicubic', align_corners=False)
+        conv = torch.reshape(conv, shape=(b, c, 1, -1))
+
         b, c, h, w = conv.size()
-        assert h == 1, "the height of conv must be 1"
+        assert h == 1, f"h: {h} where the height of conv must be 1"
         conv = conv.squeeze(2)
         conv = conv.permute(2, 0, 1)  # [w, b, c]
 
         # rnn features
         output = self.rnn(conv)
-        return output
+        return output[0]
 
 
 class LG_LeNet(nn.Module):
@@ -249,7 +257,7 @@ def build_network(network_name):
         'resnet': Resnet(),
         'VanillaCNN': VanillaCNN(),
         'UNet': UNet(),
-        # 'CRNN': CRNN(),
+        'CRNN': CRNN(),
         'LG_LeNet': LG_LeNet(),
         'LG_LeNet_Autoencoder': LG_LeNet_Autoencoder(),
     }.get(network_name)
