@@ -115,11 +115,12 @@ class LGDataset(Dataset):
             if not line:
                 break
             if measuretime in line:
-                sample = line.strip().split('\t')[1:-1]
+                sample = line.strip().split('\t')[1:]
         f.close()
 
         target = int(self.targets[index])
-        sample = list(map(float, sample))
+        #sample = list(map(float, sample))
+        sample = np.array(sample, dtype=np.float32)
         img_array = preprocess(sample)
         sample = torch.tensor(img_array, dtype=torch.float32)
         semi_targets = int(self.semi_targets[index])
