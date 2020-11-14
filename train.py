@@ -152,7 +152,7 @@ class DeepSADTrainer():
                 # Update network parameters via backpropagation: forward + backward + optimize
                 outputs = net(inputs)
                 dist = torch.sum((outputs - self.c) ** 2, dim=1)
-                losses = torch.where(semi_targets == 0, dist, self.eta * ((dist + self.eps) ** semi_targets.float()))
+                losses = torch.where(semi_targets == 1, dist, self.eta * ((dist + self.eps) ** semi_targets.float()))
                 loss = torch.mean(losses)
                 loss.backward()
                 optimizer.step()

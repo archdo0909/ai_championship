@@ -41,8 +41,8 @@ def main(root, dataset_name, output_model_name, xp_path, network, optimizer_name
                           stage_n_degc=False)
     
     idx, _, semi_targets = create_semisupervised_setting(train_set.targets.cpu().data.numpy(),
-                                                         normal_classes=(0,),
-                                                         outlier_classes=(1,),
+                                                         normal_classes=(1,),
+                                                         outlier_classes=(0,),
                                                          known_outlier_classes=(),
                                                          ratio_known_normal=0,
                                                          ratio_known_outlier=0, 

@@ -91,6 +91,9 @@ class LGDataset(Dataset):
            
         if self.dataset_name == "aug_6k":
             base_file_name = "sampled"
+        
+        if self.dataset_name == "sampled":
+            base_file_name = "combine"
 
         sample, target = self.data[index], int(self.targets[index])
         measuretime = self.data[index][0]
@@ -102,6 +105,9 @@ class LGDataset(Dataset):
 
         if self.dataset_name == "aug_6k":
             target_fname = "sampled" + ".txt"
+
+        if self.dataset_name == "sampled":
+            target_fname = "combine" + ".txt"
 
         f = open(self.folder_path / target_fname, 'r')
         while 1:

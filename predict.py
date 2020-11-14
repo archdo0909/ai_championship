@@ -3,12 +3,13 @@ from model import build_network
 from dataset import LGDataset
 from preprocessing import preprocess
 from train import DeepSADTrainer
-
-from utils.visualization.plot_images_grid import plot_images_grid
+from mlxtend.plotting import plot_confusion_matrix
+from sklearn.metrics import confusion_matrix, roc_curve, plot_roc_curve, auc
 
 import time
 import torch
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 def predict(model_path, data_path):
@@ -25,21 +26,50 @@ def predict(model_path, data_path):
 
     net.to("cuda")
 
-    images = read_data(data_path)
-    output = []
+    images, label_trues = read_data(data_path)
+    label_preds = []
     for i in range(len(images)):
         outputs = net(torch.tensor(images[i], dtype=torch.float32).to("cuda"))
         dist = torch.sum((outputs - c) ** 2, dim=1)
         if dist > outlier_dist:
-            label = 1
-            print(print(f"label:{label}, abnormal"))
-            print("dist : ", dist)
+            label_preds.append(1)
         else:
-            label = 0
-            print(print(f"label:{label}, normal"))
-            print("dist : ", dist)
+            label_preds.append(0)
 
-    return output
+    evaluate(label_trues, label_preds)
+
+
+def evaluate(label_true, label_pred):
+
+    matrix = confusion_matrix(label_true, label_pred)
+
+    total = sum(sum(matrix))
+    # from confusion matrix calculate accuracy
+    accuracy = (matrix[0, 0] + matrix[1, 1]) / total
+    print('Accuracy : ', accuracy)
+
+    sensitivity = matrix[0, 0] / (matrix[0, 0] + matrix[0, 1])
+    print('Sensitivity(recall) : ', sensitivity)
+
+    specificity = matrix[1, 1] / (matrix[1, 0] + matrix[1, 1])
+    print('Specificity : ', specificity)
+
+    precision = matrix[0, 0] / (matrix[0, 0] + matrix[1, 0])
+    print('Precision : ', precision)
+
+    f1 = 2 * (precision * sensitivity) / (precision + sensitivity)
+    print('F1 Score : ', f1)
+
+    print("\n\nSensitivity or recall: TP / (TP + FN)     // 맞는 케이스에 대해 얼마나 많이 맞다고 실제로 예측했나?")
+    print("Specificity: TN / (FP + TN)     // 틀린 케이스에 대해 얼마나 틀리다고 실제로 예측했나?")
+    print("Precision: TP / (TP + FP)     // 맞다고 예측 한 것 중에 실제로 정답이 얼마나 되나?")
+
+    fig, ax = plot_confusion_matrix(conf_mat=matrix,
+                                    show_absolute=True,
+                                    show_normed=True,
+                                    colorbar=True)
+    plt.plot()
+    plt.savefig('/workspace/confusion.png')
 
 
 def test(model_path, dataset, batch_size, num_workers, eps, eta):
@@ -79,8 +109,7 @@ def test(model_path, dataset, batch_size, num_workers, eps, eta):
 
             output = net(inputs)
             dist = torch.sum((output - c) ** 2, dim=1)
-            losses = torch.where(semi_targets == 0, dist, eta * ((dist + eps)
-                ** semi_targets.float()))
+            losses = torch.where(semi_targets == 0, dist, eta * ((dist + eps)** semi_targets.float()))
             loss = torch.mean(losses)
             scores = dist
 
@@ -110,57 +139,47 @@ def test(model_path, dataset, batch_size, num_workers, eps, eta):
 
 def read_data(data_path):
 
+    label_true = []
     data = []
-    f = open(data_path, "r")
+    f = open(data_path, 'r')
+
+    img = []
+
     while 1:
         line = f.readline()
         if not line:
             break
-        sample = line.strip().split("\t")[1:-1]
-        data.append(sample)
-    f.close()
-    # data = list(map(float, data))
 
-    img = []
-    for i in range(len(data)):
-        data[i] = list(map(float, data[i]))
-        array = preprocess(data[i])
-        img.append(array)
+        # label
+        label_true.append(int(line[0]))
+        # data
+        line = line[1:].strip().split('\t')
+        line[1] = int(line[1][1])
+        data = np.array(line, dtype=np.float32)
 
-    return img
+        freqs_image = preprocess(data)
+        img.append(freqs_image)
+        img = torch.Tensor(img).unsqueeze(0)
+
+    return img, label_true
 
 
 if __name__ == "__main__":
 
     predict(
-        model_path="/workspace/eddie/ai_championship/log/models/deepSADModel.tar",
-        data_path="/workspace/ai_championship/data/sample_data.txt",
+        model_path="/workspace/eddie/deep-sad-6k/log/models/aug_6k_set.tar",
+        data_path="/workspace/ng.txt",
     )
 
-    test_set = LGDataset(root="/work/eddie_study/deep-sad-6k/data",
-                         dataset_name="aug_6k",
-                         train=False,
-                         random_state=None,
-                         stage_n_degc=False)
+    # test_set = LGDataset(root="/workspace/eddie/deep-sad-6k/data",
+    #                      dataset_name="sampled",
+    #                      train=False,
+    #                      random_state=None,
+    #                      stage_n_degc=False)
 
-    test_scores = test(model_path="/work/eddie_study/deep-sad-6k/log/models/aug_6k_set.tar",
-                       dataset=test_set,
-                       batch_size=64,
-                       num_workers=4,
-                       eps=1e-6,
-                       eta=0.01)
-
-    indices, labels, scores = zip(test_scores)
-    indices, labels, scores = np.array(indices), np.array(labels), np.array(scores)
-    idx_all_sorted = indices[np.argsort(scores)]  # from lowest to highest score
-    idx_normal_sorted = indices[labels == 0][np.argsort(scores[labels == 0])]  # from lowest to highest score
-
-    X_all_low = torch.tensor(np.transpose(dataset.test_set.data[idx_all_sorted[:32], ...], (0,3,1,2)))
-    X_all_high = torch.tensor(np.transpose(dataset.test_set.data[idx_all_sorted[-32:], ...], (0,3,1,2)))
-    X_normal_low = torch.tensor(np.transpose(dataset.test_set.data[idx_normal_sorted[:32], ...], (0,3,1,2)))
-    X_normal_high = torch.tensor(np.transpose(dataset.test_set.data[idx_normal_sorted[-32:], ...], (0,3,1,2)))
-
-    plot_images_grid(X_all_low, export_img=xp_path + '/all_low', padding=2)
-    plot_images_grid(X_all_high, export_img=xp_path + '/all_high', padding=2)
-    plot_images_grid(X_normal_low, export_img=xp_path + '/normals_low', padding=2)
-    plot_images_grid(X_normal_high, export_img=xp_path + '/normals_high', padding=2)
+    # test_scores = test(model_path="/workspace/eddie/deep-sad-6k/log/models/aug_6k_set.tar",
+    #                    dataset=test_set,
+    #                    batch_size=16,
+    #                    num_workers=4,
+    #                    eps=1e-6,
+    #                    eta=0.01)

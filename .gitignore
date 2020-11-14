@@ -3,6 +3,7 @@
 __pycache__/
 .idea/
 log/*.txt
+log/models/*.tar
 
 # files
 *.pyc
