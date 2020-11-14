@@ -31,7 +31,7 @@ class VanillaCNN(nn.Module):
 
 
 class UNet(nn.Module):
-    def double_conv(in_channels, out_channels):
+    def double_conv(self, in_channels, out_channels):
         return nn.Sequential(
             nn.Conv2d(in_channels, out_channels, 3, padding=1),
             nn.ReLU(),
@@ -49,7 +49,7 @@ class UNet(nn.Module):
         self.dconv_down1 = self.double_conv(in_channels, 64)
         self.dconv_down2 = self.double_conv(64, 128)
         self.dconv_down3 = self.double_conv(128, 256)
-        self.dconv_down4 = self.double_conv(256, 512)        
+        self.dconv_down4 = self.double_conv(256, 512)
 
         self.maxpool = nn.MaxPool2d(2)
         
@@ -58,8 +58,13 @@ class UNet(nn.Module):
         self.dconv_up1 = self.double_conv(128 + 64, 64)
         
         self.conv_last = nn.Conv2d(64, out_channels, 1)
+
+        self.conv_real_last = nn.Linear(128 * 128, 2)
         
     def forward(self, x):
+        # reshape mini-batched tensor when reshaping, take pixel's region account
+        x = F.interpolate(x, size=(128, 128), mode='bicubic', align_corners=False)
+
         conv1 = self.dconv_down1(x)
         x = self.maxpool(conv1)
 
@@ -67,7 +72,7 @@ class UNet(nn.Module):
         x = self.maxpool(conv2)
         
         conv3 = self.dconv_down3(x)
-        x = self.maxpool(conv3)   
+        x = self.maxpool(conv3)
         
         x = self.dconv_down4(x)
         
@@ -76,14 +81,18 @@ class UNet(nn.Module):
         
         x = self.dconv_up3(x)
         x = F.interpolate(x, scale_factor=2, mode='bilinear', align_corners=True)
-        x = torch.cat([x, conv2], dim=1) 
+        x = torch.cat([x, conv2], dim=1)
 
         x = self.dconv_up2(x)
         x = F.interpolate(x, scale_factor=2, mode='bilinear', align_corners=True)
-        x = torch.cat([x, conv1], dim=1)   
+        x = torch.cat([x, conv1], dim=1)
         
         x = self.dconv_up1(x)
-        return self.conv_last(x)
+        x = self.conv_last(x)
+        
+        x = torch.reshape(x, shape=(-1, 128*128))
+        x = self.conv_real_last(x)
+        return F.sigmoid(x)
 
 
 class CRNN(nn.Module):
