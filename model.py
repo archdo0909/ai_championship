@@ -12,7 +12,7 @@ class Resnet(nn.Module):
         self.num_ftrs = self.model.fc.in_features
         # self.model.conv1 = nn.Conv2d(5, 64, kernel_size=3) # 인풋 레이어 5채널로 수정
         self.model.fc = nn.Linear(self.num_ftrs, 2) # 마지막 레이어 아웃풋 2로 수정(정상, 불량)
-        print(self.model)
+        #print(self.model)
 
     def forward(self, x):
         # x = self.model.conv1
@@ -191,14 +191,14 @@ class LG_LeNet(nn.Module):
         self.rep_dim = rep_dim
         self.pool = nn.MaxPool2d(2, 2)
 
-        self.conv1 = nn.Conv2d(3, 24, 5, bias=False, padding=2)
+        self.conv1 = nn.Conv2d(5, 24, 5, bias=False, padding=2)
         self.bn1 = nn.BatchNorm2d(24, eps=1e-04, affine=False)
         self.conv2 = nn.Conv2d(24, 12, 5, bias=False, padding=2)
         self.bn2 = nn.BatchNorm2d(12, eps=1e-04, affine=False)
         self.fc1 = nn.Linear(12 * 25 * 25, self.rep_dim, bias=False)
 
     def forward(self, x):
-        x = x.view(-1, 3, 100, 100)
+        x = x.view(-1, 5, 100, 100)
         x = self.conv1(x)
         x = self.pool(F.leaky_relu(self.bn1(x)))
         x = self.conv2(x)
@@ -220,7 +220,7 @@ class LG_LeNet_Decoder(nn.Module):
         self.bn3 = nn.BatchNorm2d(12, eps=1e-04, affine=False)
         self.deconv2 = nn.ConvTranspose2d(12, 24, 5, bias=False, padding=2)
         self.bn4 = nn.BatchNorm2d(24, eps=1e-04, affine=False)
-        self.deconv3 = nn.ConvTranspose2d(24, 3, 5, bias=False, padding=2)
+        self.deconv3 = nn.ConvTranspose2d(24, 5, 5, bias=False, padding=2)
 
     def forward(self, x):
         x = x.view(int(x.size(0)), int(self.rep_dim / 25), 5, 5)
