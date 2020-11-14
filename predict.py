@@ -5,7 +5,8 @@ import torch
 import numpy as np
 from mlxtend.plotting import plot_confusion_matrix
 import matplotlib.pyplot as plt
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import confusion_matrix, roc_curve, plot_roc_curve, auc
+import time
 
 
 # TODO: ensemble
@@ -23,6 +24,9 @@ def predict_supervised(model_path, data_path):
     label_true = []
     label_pred = []
     f = open(data_path, 'r')
+    header = f.readline() # ignore first line if header
+    t_new = t_old = time.time()
+    idx = 0
     while 1: 
         line = f.readline()
         if not line:
@@ -31,7 +35,9 @@ def predict_supervised(model_path, data_path):
         #label
         label_true.append(int(line[0]))
         # data
-        data = np.array(line[1:].strip().split('\t'), dtype=np.float32)
+        line = line[1:].strip().split('\t')
+        line[1] = int(line[1][1])
+        data = np.array(line, dtype=np.float32)
         # preprocess each line
         freqs_image = preprocess(data)
         freqs_image = torch.Tensor(freqs_image).unsqueeze(0)
@@ -41,6 +47,11 @@ def predict_supervised(model_path, data_path):
         output = torch.argmax(output, 1)
         label_pred.append(int(output))
         # print(int(output))
+        idx += 1
+        if idx % 1000 == 0:
+            t_new = time.time()
+            print(idx, f'{(t_new - t_old):.2f}초 / 1000개, 초당 {(1000 / (t_new - t_old)):.2f}개')
+            t_old = time.time()
 
     print('label_true : ', label_true)
     print('label_pred : ', label_pred)
@@ -56,10 +67,10 @@ def predict_supervised(model_path, data_path):
     print ('Accuracy : ', accuracy)
 
     sensitivity = matrix[0,0]/(matrix[0,0]+matrix[0,1])
-    print('Sensitivity : ', sensitivity )
+    print('Sensitivity(recall) : ', sensitivity )
 
     specificity = matrix[1,1]/(matrix[1,0]+matrix[1,1])
-    print('Specificity(recall) : ', specificity)
+    print('Specificity : ', specificity)
 
     precision = matrix[0,0]/(matrix[0,0]+matrix[1,0])
     print('Precision : ', precision)
@@ -77,6 +88,16 @@ def predict_supervised(model_path, data_path):
                                 colorbar=True)
     plt.plot()
     plt.savefig('/workspace/confusion.png')
+
+
+
+    y = np.array([1, 1, 2, 2])
+    scores = np.array([0.1, 0.4, 0.35, 0.8])
+    fpr, tpr, thresholds = roc_curve(label_true, label_pred, pos_label=2)
+    roc_auc = auc(fpr, tpr)
+    # fig, ax = plot_roc_curve(1, label_true, label_pred)
+    plt.plot()
+    plt.savefig('/workspace/roc_curve.png')
 
 
 def predict(model_path, data_path):
@@ -138,5 +159,7 @@ if __name__ == "__main__":
 
     # predict(model_path="/workspace/ai_championship/log/models/DeepSADModel.tar",
             # data_path="/workspace/ai_championship/data/sample_data.txt")
+    # predict_supervised(model_path="/workspace/ai_championship/log/models/sample_train.pt",
+    #         data_path="/workspace/ai_championship/data/sample_data.txt")
     predict_supervised(model_path="/workspace/ai_championship/log/models/sample_train.pt",
-            data_path="/workspace/ai_championship/data/sample_data.txt")
+            data_path="/workspace/lg_train/202004_FLD165NBMA_vib_spectrum_modi_train.txt")
