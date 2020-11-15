@@ -68,6 +68,9 @@ class Sampler:
 
         self.save_data(self.file_to_save, X_resampled, y_resampled)
 
+    def sample_test(self):
+        pass
+
 
 if __name__ == "__main__":
     sampler = Sampler('', '', '')
