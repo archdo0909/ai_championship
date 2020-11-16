@@ -30,7 +30,7 @@ class SampleTrainer:
         # Set device for network
         net = net.to(self.device)
 
-        criterion = nn.CrossEntropyLoss()
+        criterion = nn.BCELoss()
 
         # Set optimizer (Adam optimizer for now)
         optimizer = optim.Adam(net.parameters(), lr=self.lr)
@@ -46,7 +46,7 @@ class SampleTrainer:
             epoch_start_time = time.time()
             for data in train_loader:
                 inputs, targets, *_ = data
-                targets = targets.long()
+                targets = targets.float()
                 inputs = inputs.to(self.device)
                 targets = targets.to(self.device)
 
@@ -55,9 +55,8 @@ class SampleTrainer:
 
                 # Update network parameters via backpropagation: forward + backward + optimize
                 outputs = net(inputs)
-
                 loss = criterion(outputs, targets)
-                
+
                 loss.backward()
                 optimizer.step()
 

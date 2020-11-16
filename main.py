@@ -42,7 +42,7 @@ def main(data_path, data_name, xp_path, network, lr, n_epochs, batch_size, devic
         )
         network = build_network(network)
         network_trained = sample_train.train(train_set, network)
-        torch.save(network_trained.state_dict(), '/workspace/jinsung/y')
+        torch.save(network_trained.state_dict(), '/workspace/jinsung/resnet')
 
     else:
         test_set = ds(
@@ -56,7 +56,7 @@ def main(data_path, data_name, xp_path, network, lr, n_epochs, batch_size, devic
             device=device, n_jobs_dataloader=n_jobs_dataloader
         )
         network = build_network(network)
-        network.load_state_dict(torch.load('/workspace/jinsung/y'))
+        network.load_state_dict(torch.load('/workspace/jinsung/resnet'))
         sample_test.test(test_set, network)
 
 
@@ -65,7 +65,7 @@ if __name__ == "__main__":
     main(data_path='/workspace/peter/sampled/sampled.txt',
         data_name='sampled',
         xp_path='/workspace/ai_championship/log',
-        network='CRNN',
+        network='resnet',
         lr=0.001,
         n_epochs=10,
         batch_size=16,
@@ -78,7 +78,7 @@ if __name__ == "__main__":
     main(data_path='/workspace/peter/sampled/sampled.txt',
          data_name='sampled',
          xp_path='/workspace/ai_championship/log',
-         network='CRNN',
+         network='resnet',
          lr=0.001,
          n_epochs=1,
          batch_size=16,

@@ -30,7 +30,7 @@ class SampleTester:
         # Set device for network
         net = net.to(self.device)
 
-        criterion = nn.CrossEntropyLoss()
+        criterion = nn.BCELoss()
 
         # Testing
         logger.info('Starting testing...')
@@ -43,7 +43,7 @@ class SampleTester:
             epoch_start_time = time.time()
             for data in test_loader:
                 inputs, targets, *_, = data
-                targets = targets.long()
+                targets = targets.float()
                 inputs = inputs.to(self.device)
                 targets = targets.to(self.device)
 

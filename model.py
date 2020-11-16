@@ -12,7 +12,7 @@ class Resnet(nn.Module):
         self.model = resnet18(pretrained=True)
 
         self.model.conv1 = nn.Conv2d(5, 64, 3, padding=1)
-        self.model.fc = nn.Linear(self.model.fc.in_features, 2)
+        self.model.fc = nn.Linear(self.model.fc.in_features, 1)
 
     def forward(self, x):
         return F.sigmoid(self.model(x))
