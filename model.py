@@ -115,7 +115,7 @@ class BidirectionalLSTM(nn.Module):
 
 class CRNN(nn.Module):
     
-    def __init__(self, imgH=112, nc=5, nclass=2, nh=3, n_rnn=2, leakyRelu=False):
+    def __init__(self, imgH=112, nc=5, nclass=1, nh=3, n_rnn=2, leakyRelu=False):
         super(CRNN, self).__init__()
         assert imgH % 16 == 0, 'imgH has to be a multiple of 16'
 
