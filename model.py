@@ -176,7 +176,7 @@ class CRNN(nn.Module):
 
         # rnn features
         output = self.rnn(conv)
-        return output[0]
+        return F.sigmoid(output[0])
 
 
 class LG_LeNet(nn.Module):
