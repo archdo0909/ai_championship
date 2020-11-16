@@ -62,5 +62,4 @@ class SampleTester:
         logger.info('Testing Time: {:.3f}s'.format(self.test_time))
         logger.info('Finished testing.')
 
-        torch.save(net.state_dict(), "/workspace/ai_championship/log/models/sample_test.pt")
         return net
