@@ -24,7 +24,7 @@ class VanillaCNN(nn.Module):
 
         self.model = resnet34(pretrained=True)
         self.model.conv1 = nn.Conv2d(5, 64, 3, padding=1)
-        self.model.fc = nn.Linear(self.model.fc.in_features, 2)
+        self.model.fc = nn.Linear(self.model.fc.in_features, 1)
     
     def forward(self, x):
         return F.sigmoid(self.model(x))
@@ -59,7 +59,7 @@ class UNet(nn.Module):
         
         self.conv_last = nn.Conv2d(64, out_channels, 1)
 
-        self.conv_real_last = nn.Linear(128 * 128, 2)
+        self.conv_real_last = nn.Linear(128 * 128, 1)
         
     def forward(self, x):
         # reshape mini-batched tensor when reshaping, take pixel's region account
