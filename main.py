@@ -80,7 +80,7 @@ if __name__ == "__main__":
          xp_path='/workspace/ai_championship/log',
          network='CRNN',
          lr=0.001,
-         n_epochs=10,
+         n_epochs=1,
          batch_size=16,
          device='cuda',
          n_jobs_dataloader=4,
