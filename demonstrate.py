@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 import os
 import time
@@ -10,7 +11,7 @@ import torch.nn as nn
 from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
 
-from model import build_network
+from ensemble import EnsembleNetwork
 
 
 # (1) 다운로드한 데이터(폴더)에서 정상과 불량 데이터 분리
@@ -74,7 +75,7 @@ def preprocess_data(curr_X=None):
 
 
 # (3) 전처리된 데이터에 대하여 pretrained deep ensemble 모델로 prediction 실행
-def make_prediction(data_dir):
+def make_prediction(data_dir=None):
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
@@ -89,10 +90,12 @@ def make_prediction(data_dir):
     logger.addHandler(file_handler)
 
     test_set = DemonstrateDataset(data_dir)
-    sample_test = DemonstrateTester()
-    network = build_network('ensemble')
-    network.load_state_dict(torch.load('/workspace/demon/final_weight'))
-    sample_test.test(test_set, network)
+    demon_tester = DemonstrateTester()
+    
+    # Ensemble Pretrained Models
+    ensemble_network = EnsembleNetwork()
+    ensemble_network.to('cuda')
+    demon_tester.test(test_set, ensemble_network)
 
 
 class DemonstrateDataset(Dataset):
@@ -101,8 +104,7 @@ class DemonstrateDataset(Dataset):
         self, datadir
     ):
         super(Dataset, self).__init__()
-        datafile = datadir
-
+        datafile = os.path.join(datadir, 'demonstrate.txt')
         with open(datafile, "r") as f:
             self.data = [line.strip().split('\t') for line in f.readlines()]
 
@@ -177,6 +179,6 @@ class DemonstrateTester:
 
 if __name__ == '__main__':
     # e.g. /workspace/demon/testdir
-    split_data('/workspace/lg_train_test')
+    #split_data('/workspace/lg_train_test')
     preprocess_data()
     make_prediction('/workspace/demon')
