@@ -1,5 +1,5 @@
 from model import build_network
-from preprocessing import preprocess
+from preprocessing import preprocess, preprocess_spectrogram
 from torch.utils.data import DataLoader
 import torch
 import numpy as np
@@ -40,11 +40,12 @@ def predict_supervised(model_path, data_path):
         data = np.array(line, dtype=np.float32)
         # preprocess each line
         freqs_image = preprocess(data)
+        # freqs_image = preprocess_spectrogram(data) # for spectrogram
         freqs_image = torch.Tensor(freqs_image).unsqueeze(0)
 
         # predict
         output = net(freqs_image)
-        output = torch.argmax(output, 1)
+        output = round(float(output[0][0]))
         label_pred.append(int(output))
         # print(int(output))
         idx += 1
@@ -161,5 +162,5 @@ if __name__ == "__main__":
             # data_path="/workspace/ai_championship/data/sample_data.txt")
     # predict_supervised(model_path="/workspace/ai_championship/log/models/sample_train.pt",
     #         data_path="/workspace/ai_championship/data/sample_data.txt")
-    predict_supervised(model_path="/workspace/ai_championship/log/models/sample_train.pt",
-            data_path="/workspace/lg_train/202004_FLD165NBMA_vib_spectrum_modi_train.txt")
+    predict_supervised(model_path="/workspace/peter/models/resnet_random700.pt",
+            data_path="/workspace/ng_test.txt")
