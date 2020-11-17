@@ -112,12 +112,8 @@ class DemonstrateDataset(Dataset):
         data = self.data[index]
 
         curr_data = None
-        try:
-            data[2] = int(data[2][1])
-            curr_data = np.array(data, dtype=np.float32)
-        except:
-            print(len(data))
-            print(data[:5])
+        data[2] = int(data[2][1])
+        curr_data = np.array(data, dtype=np.float32)
         curr_X = curr_data[1:]
         curr_Y = np.int32(curr_data[0])
 
