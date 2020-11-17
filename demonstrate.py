@@ -43,7 +43,7 @@ def split_data(data_dir):
 
 # (2) 위에서 저장된 데이터에 대하여 데이터 전처리 실행 및 저장
 def preprocess_data(curr_X=None):
-    if not curr_X:
+    if curr_X is None:
         return None
 
     # curr_X: datetime, stage, temperature
@@ -109,7 +109,15 @@ class DemonstrateDataset(Dataset):
             self.data = [line.strip().split('\t') for line in f.readlines()]
 
     def __getitem__(self, index):
-        curr_data = np.array(self.data[index], dtype=np.float32)
+        data = self.data[index]
+
+        curr_data = None
+        try:
+            data[2] = int(data[2][1])
+            curr_data = np.array(data, dtype=np.float32)
+        except:
+            print(len(data))
+            print(data[:5])
         curr_X = curr_data[1:]
         curr_Y = np.int32(curr_data[0])
 
@@ -155,7 +163,7 @@ class DemonstrateTester:
             epoch_start_time = time.time()
             for data in test_loader:
                 inputs, targets, *_, = data
-                targets = targets.long()
+                targets = targets.float()
                 inputs = inputs.to(self.device)
                 targets = targets.to(self.device)
 
@@ -164,7 +172,7 @@ class DemonstrateTester:
                 loss = criterion(outputs, targets)
                 epoch_loss += loss.item()
 
-                # log epoch statistics
+            # log epoch statistics
             epoch_test_time = time.time() - epoch_start_time
             logger.info(
                 f'| Epoch: {epoch + 1:03} '
