@@ -1,5 +1,5 @@
 import numpy as np
-
+from matplotlib import pyplot as plt
 
 def preprocess(curr_X):
     # curr_X: datetime, stage, temperature
