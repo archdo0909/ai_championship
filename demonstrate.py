@@ -43,7 +43,7 @@ def split_data(data_dir):
                         f_abnormal.write(line)
                     abnormal += 1
     print(f'정상 데이터 : {normal} 개, 불량 데이터 {abnormal} 개')
-    
+
 
 # (2) 위에서 저장된 데이터에 대하여 데이터 전처리 실행 및 저장
 def preprocess_data(curr_X=None):
@@ -158,7 +158,9 @@ class DemonstrateTester:
 
         y_true = []
         y_pred = []
-        for data in test_loader:
+        for i, data in enumerate(test_loader):
+            if i == 10:
+                break
             x, y, *_ = data
             y = y.float()
 
@@ -166,28 +168,28 @@ class DemonstrateTester:
             y = y.to(self.device)
 
             y_hat = net(x).squeeze()
-            y_hat_rounded = round(y_hat.data.cpu().item(), 0)
+            y_hat_rounded = round(y_hat.data.cpu().item())
 
-            y_true.append(y)
+            y_true.append(int(y.data.cpu().item()))
             y_pred.append(y_hat_rounded)
-        
-        cm = confusion_matrix(y_true, y_pred)
-        tn, fp, fn, tp = cm.ravel()
 
+        cm = confusion_matrix(y_true, y_pred, labels=[1, 0])
+        print('Confusion Matrix:')
+        print(cm)
+
+        tn, fp, fn, tp = cm.ravel()
         precision = tp / (tp + fp)
         recall = tp / (tp + fn)
         specificity = tn / (tn + fp)
         f1_score = 2*precision*recall / (precision+recall)
-
-        print('confusion_matrix:')
-        print(cm)
-        print('Precision: {}, Recall: {}, Specificity: {}, F1-Score: {}'.format(
-            precision, recall, specificity, f1_score
+        balanced_accuracy = (recall + specificity) / 2
+        print('Precision: {}, Recall: {}, Specificity: {}, F1-Score: {}, Balanced Accuracy: {}'.format(
+            precision, recall, specificity, f1_score, balanced_accuracy
         ))
 
         time_taken = time.time() - start_time
         logger.info('Time taken for making prediction: {:.3f}s'.format(time_taken))
-        logger.info('Finished testing.')
+        logger.info('Finished demonstration.')
 
 
 if __name__ == '__main__':
