@@ -67,13 +67,14 @@ class EnsembleNetwork(nn.Module):
         #print('xyshape:', x.shape, x.item().shape)
         x_np = x.cpu().detach().numpy().squeeze()
         x_in_img = preprocess_spectrogram(x_np)
-        x_in_tensor = torch.tensor(x_in_img, dtype=torch.float32, device='cuda')
+        x_in_img = x_in_img[None, :, :, :]
+        x_in_tensor = torch.tensor((x_in_img), dtype=torch.float32, device='cuda')
         result_resnet = self.resnet.forward(x_in_tensor)
-        print('DOES THIS WORK?', x_in_tensor.shape)
         result_crnn = self.crnn.forward(x_in_tensor)
         result_unet = self.unet.forward(x_in_tensor)
         
-        return (result_resnet + result_crnn + result_unet) / 3
+        final_result = (result_resnet + result_crnn + result_unet) / 3
+        return final_result
 
 
 if __name__ == '__main__':

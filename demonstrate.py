@@ -138,8 +138,12 @@ class DemonstrateTester:
             x = x.to(self.device)
             y = y.to(self.device)
 
-            y_hat = net(x).squeeze()
-            y_hat_rounded = round(y_hat.data.cpu().item())
+            y_hat = net(x)
+            if not isinstance(y_hat, int):
+                y_hat = y_hat.squeeze()
+                y_hat_rounded = round(y_hat.data.cpu().item())
+            else:
+                y_hat_rounded = round(y_hat)
 
             y_true.append(int(y.data.cpu().item()))
             y_pred.append(y_hat_rounded)
