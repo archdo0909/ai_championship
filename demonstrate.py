@@ -22,23 +22,19 @@ from preprocessing import preprocess_spectrogram
 def split_data(data_dir):
     # 불량 데이터 따로 빼고, 정상 데이터는 1000개씩 빼서 저장
     normal, abnormal = 0,0
-    num_extract_normal = 1000
+    # num_extract_normal = 1000
     normal_data_fpath = os.path.join('/workspace/demon', 'normal.txt')
     abnormal_data_fpath = os.path.join('/workspace/demon', 'abnormal.txt')
 
     file_list = glob(data_dir + '/*.txt')
     for filepath in file_list:
         print(filepath)
-        index = 0
         with open(filepath, mode='r') as f:
             for i, line in enumerate(f):
                 if line[0] == '0':
-                    if index < num_extract_normal:
-                        with open(normal_data_fpath, 'a') as f_normal:
-                            f_normal.write(line)
+                    with open(normal_data_fpath, 'a') as f_normal:
+                        f_normal.write(line)
                         normal += 1
-                        index += 1
-                    else: pass
                 else:
                     with open(abnormal_data_fpath, 'a') as f_abnormal:
                         f_abnormal.write(line)
@@ -195,6 +191,6 @@ class DemonstrateTester:
 
 if __name__ == '__main__':
     # e.g. /workspace/demon/testdir
-    #split_data('/workspace/lg_train_test')
+    split_data('/workspace/test1')
     preprocess_data()
     make_prediction('/workspace/demon')
