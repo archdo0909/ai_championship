@@ -27,7 +27,6 @@ def preprocess(curr_X):
     freqs_image = np.concatenate((freqs_image, hour_channel), axis=0)
     freqs_image = np.concatenate((freqs_image, stage_channel), axis=0)
     freqs_image = np.concatenate((freqs_image, temperature_channel), axis=0)
-    print(freqs_image.shape)
     return freqs_image
 
 def preprocess_spectrogram(curr_X):

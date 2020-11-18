@@ -105,7 +105,7 @@ class DemonstrateDataset(Dataset):
         self, datadir
     ):
         super(Dataset, self).__init__()
-        datafile = os.path.join(datadir, 'demonstrate.txt')
+        datafile = os.path.join(datadir, 'normal_100.txt')
         with open(datafile, "r") as f:
             self.data = [line.strip().split('\t') for line in f.readlines()]
 
@@ -116,9 +116,9 @@ class DemonstrateDataset(Dataset):
         curr_X = curr_data[1:]
         curr_Y = np.int32(curr_data[0])
 
-        curr_X_augmented = preprocess_spectrogram(curr_X)
-        tensor_image = torch.tensor(curr_X_augmented, dtype=torch.float32)
-        return tensor_image, curr_Y
+        #curr_X_augmented = preprocess_spectrogram(curr_X)
+        #tensor_image = torch.tensor(curr_X_augmented, dtype=torch.float32)
+        return curr_X, curr_Y
 
     def __len__(self):
         return len(self.data)
@@ -169,7 +169,7 @@ class DemonstrateTester:
             y_true.append(int(y.data.cpu().item()))
             y_pred.append(y_hat_rounded)
 
-        print('y_true: {}, y_pred: {}'.format(y_true, y_pred))
+        #print('y_true: {}, y_pred: {}'.format(y_true, y_pred))
         cm = confusion_matrix(y_true, y_pred, labels=[1, 0])
         print('Confusion Matrix:')
         print(cm)
@@ -191,6 +191,6 @@ class DemonstrateTester:
 
 if __name__ == '__main__':
     # e.g. /workspace/demon/testdir
-    split_data('/workspace/test1')
-    # preprocess_data()
-    # make_prediction('/workspace/demon')
+    #split_data('/workspace/test1')
+    preprocess_data()
+    make_prediction('/workspace/demon')

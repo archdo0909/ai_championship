@@ -282,10 +282,8 @@ class LG_1DCNN(nn.Module):
         # @ 32 * 36
         x = self.conv3(x)
         # @ 64 * 12
-        print("con3", x.shape)
         x = self.pool2(F.leaky_relu(self.bn3(x)))
         # @ 64 * 4
-        print("last x", x.shape)
         x = x.view(int(x.size(0)), -1)
         x = self.fc1(x)
         return x

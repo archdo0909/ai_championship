@@ -2,11 +2,13 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-import torchvision.models as models
-
 from model import Resnet
 from model import CRNN
 from model import UNet
+from model import LG_1DCNN
+
+from preprocessing import preprocess_spectrogram
+
 
 class EnsembleNetwork(nn.Module):
     def __init__(self):
@@ -18,8 +20,8 @@ class EnsembleNetwork(nn.Module):
         self.unet = UNet()
 
         # Init one class classifier
-        self.deep_sad_normal = None
-        self.deep_sad_abnormal = None
+        self.deep_sad_normal = LG_1DCNN()
+        self.deep_sad_abnormal = LG_1DCNN()
 
         # Init models list
         self.models = [self.resnet, self.crnn, self.unet]
@@ -29,28 +31,49 @@ class EnsembleNetwork(nn.Module):
         self.crnn.load_state_dict(torch.load('/workspace/demon/crnn_random700_spectrogram.pt'))
         self.unet.load_state_dict(torch.load('/workspace/demon/unet_random700_spectrogram.pt'))
 
-        # Load weights for anomaly detectors
-        #self.deep_sad_normal.load(torch.load())
-        #self.deep_sad_abnormal.load(torch.load())
+        # Load DeepSAD Normal
+        model_dict_normal = torch.load('/workspace/demon/deepSAD_1117_7k_10ep_64batch_normal.tar')
+        self.c_normal = model_dict_normal["c"]
+        self.deep_sad_normal.load_state_dict(model_dict_normal["net_dict"])
 
-        # Freeze parameter values
+        # Load DeepSAD Abnormal
+        model_dict_abnormal = torch.load('/workspace/demon/deepSADModel_7k_10ep_64batch_abnormal.tar')
+        self.c_abnormal = model_dict_abnormal["c"]
+        self.deep_sad_abnormal.load_state_dict(model_dict_abnormal["net_dict"])
+
+        # Load on CUDA and freeze parameter values
         for model in self.models:
+            model.to('cuda')
+            model.eval()
             for param in model.parameters():
                 param.requires_grad_(False)
 
     def forward(self, x):
-        # make prediction for deep sads
-        result_sad_normal = 0  #self.deep_sad_normal.forward(x)
-        result_sad_abnormal = 1  #self.deep_sad_abnormal.forward(x)
-        if result_sad_normal == result_sad_abnormal:
-            return result_sad_abnormal
+        x_in_vec = torch.tensor(x[0, 3:-1], dtype=torch.float32, device='cuda')
+
+        # Make prediction for DeepSAD models
+        output_sad_normal = self.deep_sad_normal.forward(x_in_vec)
+        distance_sad_normal = torch.sum((output_sad_normal - self.c_normal) ** 2, dim=1)
+        score_sad_normal = round(torch.sqrt(distance_sad_normal).item())
+
+        output_sad_abnormal = self.deep_sad_abnormal.forward(x_in_vec)
+        distance_sad_abnormal = torch.sum((output_sad_abnormal - self.c_abnormal) ** 2, dim=1)
+        score_sad_abnormal = round(torch.sqrt(distance_sad_abnormal).item())
+
+        if score_sad_normal == score_sad_abnormal:
+            return score_sad_normal
         
-        # if not in a consensus, try non-anomaly detectors
-        result_resnet = self.resnet.forward(x)
-        result_crnn = self.crnn.forward(x)
-        result_unet = self.unet.forward(x)
+        # If not in consensus, try dual class classifiers
+        #print('xyshape:', x.shape, x.item().shape)
+        x_np = x.cpu().detach().numpy().squeeze()
+        x_in_img = preprocess_spectrogram(x_np)
+        x_in_tensor = torch.tensor(x_in_img, dtype=torch.float32, device='cuda')
+        result_resnet = self.resnet.forward(x_in_tensor)
+        print('DOES THIS WORK?', x_in_tensor.shape)
+        result_crnn = self.crnn.forward(x_in_tensor)
+        result_unet = self.unet.forward(x_in_tensor)
         
-        return (result_resnet + result_crnn) / 3
+        return (result_resnet + result_crnn + result_unet) / 3
 
 
 if __name__ == '__main__':
