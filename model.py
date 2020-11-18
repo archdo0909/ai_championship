@@ -11,7 +11,7 @@ class Resnet(nn.Module):
         self.conv_in = nn.Conv2d(3, 16, 3, padding=1)
         self.model = resnet18(pretrained=True)
 
-        self.model.conv1 = nn.Conv2d(5, 64, 3, padding=1)
+        self.model.conv1 = nn.Conv2d(7, 64, 3, padding=1)
         self.model.fc = nn.Linear(self.model.fc.in_features, 1)
 
     def forward(self, x):
@@ -23,7 +23,7 @@ class VanillaCNN(nn.Module):
         super(VanillaCNN, self).__init__()
 
         self.model = resnet34(pretrained=True)
-        self.model.conv1 = nn.Conv2d(5, 64, 3, padding=1)
+        self.model.conv1 = nn.Conv2d(7, 64, 3, padding=1)
         self.model.fc = nn.Linear(self.model.fc.in_features, 1)
     
     def forward(self, x):
@@ -43,7 +43,7 @@ class UNet(nn.Module):
             nn.Dropout(0.05),
         )   
 
-    def __init__(self, in_channels=5, out_channels=1):
+    def __init__(self, in_channels=7, out_channels=1):
         super().__init__()
                 
         self.dconv_down1 = self.double_conv(in_channels, 64)
@@ -115,7 +115,7 @@ class BidirectionalLSTM(nn.Module):
 
 class CRNN(nn.Module):
     
-    def __init__(self, imgH=112, nc=5, nclass=1, nh=3, n_rnn=2, leakyRelu=False):
+    def __init__(self, imgH=112, nc=7, nclass=1, nh=3, n_rnn=2, leakyRelu=False):
         super(CRNN, self).__init__()
         assert imgH % 16 == 0, 'imgH has to be a multiple of 16'
 
