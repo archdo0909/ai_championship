@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from torch.utils.data import DataLoader
 from model import build_network
 from dataset import LGDataset
@@ -14,27 +15,22 @@ import matplotlib.pyplot as plt
 
 def predict(model_path, data_path):
 
-    model_dict = torch.load(model_path, map_location="cpu")
+    model_dict = torch.load(model_path, map_location="cuda")
 
     c = model_dict["c"]
-    net = build_network("LG_LeNet")
+    net = build_network("LG_1DCNN")
     net.load_state_dict(model_dict["net_dict"])
-    outlier_dist = model_dict["outlier_dist"]
-
-    ae_net = build_network("LG_LeNet_Autoencoder")
-    ae_net.load_state_dict(model_dict["ae_net_dict"])
 
     net.to("cuda")
 
     images, label_trues = read_data(data_path)
+
     label_preds = []
     for i in range(len(images)):
         outputs = net(torch.tensor(images[i], dtype=torch.float32).to("cuda"))
         dist = torch.sum((outputs - c) ** 2, dim=1)
-        if dist > outlier_dist:
-            label_preds.append(1)
-        else:
-            label_preds.append(0)
+        score = round(torch.sqrt(dist))
+        label_preds.append(score)
 
     evaluate(label_trues, label_preds)
 
@@ -170,16 +166,3 @@ if __name__ == "__main__":
         model_path="/workspace/eddie/deep-sad-6k/log/models/aug_6k_set.tar",
         data_path="/workspace/ng.txt",
     )
-
-    # test_set = LGDataset(root="/workspace/eddie/deep-sad-6k/data",
-    #                      dataset_name="sampled",
-    #                      train=False,
-    #                      random_state=None,
-    #                      stage_n_degc=False)
-
-    # test_scores = test(model_path="/workspace/eddie/deep-sad-6k/log/models/aug_6k_set.tar",
-    #                    dataset=test_set,
-    #                    batch_size=16,
-    #                    num_workers=4,
-    #                    eps=1e-6,
-    #                    eta=0.01)
