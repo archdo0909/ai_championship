@@ -21,9 +21,12 @@ class SampleTrainer:
         self.device = device
         self.n_jobs_dataloader = n_jobs_dataloader
     
-    def train(self, dataset, net):
+    def train(self, dataset, net, continuous=False, weight_path=None):
         logger = logging.getLogger()
-        
+
+        if continuous:
+            net.load_state_dict(torch.load(weight_path))
+
         # Get train data loader
         train_loader = DataLoader(dataset, batch_size=self.batch_size, num_workers=self.n_jobs_dataloader)
         
@@ -71,10 +74,6 @@ class SampleTrainer:
         self.train_time = time.time() - start_time
         logger.info('Training Time: {:.3f}s'.format(self.train_time))
         logger.info('Finished training.')
-
-        net.eval()
-        torch.save(net.state_dict(), "/workspace/ai_championship/log/models/sample_train.pt")
-
         return net
         
 
