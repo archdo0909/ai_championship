@@ -249,9 +249,49 @@ class LG_LeNet_Autoencoder(nn.Module):
         x = self.decoder(x)
         return x
 
+class LG_1DCNN(nn.Module):
+
+    def __init__(self, rep_dim=64):
+        super().__init__()
+
+        self.rep_dim = rep_dim
+        self.pool = nn.MaxPool1d(8, 8)
+        self.pool2 = nn.MaxPool1d(2, 2)
+ 
+        self.conv1 = nn.Conv1d(1, 16, 64, bias=False, stride=2)
+        self.bn1 = nn.BatchNorm1d(16, eps=1e-04, affine=False)
+
+        self.conv2 = nn.Conv1d(16, 32, 32, bias=False, stride=2)
+        self.bn2 = nn.BatchNorm1d(32, eps=1e-04, affine=False)
+
+        self.conv3 = nn.Conv1d(32, 64, 14, bias=False, stride=2)
+        self.bn3 = nn.BatchNorm1d(64, eps=1e-04, affine=False)
+
+        self.fc1 = nn.Linear(64 * 6, self.rep_dim, bias=False)
+
+    def forward(self, x):
+        x = x.view(-1, 1, 10000)
+        # @ 1 * 10000
+        x = self.conv1(x)
+        # @ 16 * 4969
+        x = self.pool(F.leaky_relu(self.bn1(x)))
+        # @ 16 * 621
+        x = self.conv2(x)
+        # @ 32 * 295
+        x = self.pool(F.leaky_relu(self.bn2(x)))
+        # @ 32 * 36
+        x = self.conv3(x)
+        # @ 64 * 12
+        print("con3", x.shape)
+        x = self.pool2(F.leaky_relu(self.bn3(x)))
+        # @ 64 * 4
+        print("last x", x.shape)
+        x = x.view(int(x.size(0)), -1)
+        x = self.fc1(x)
+        return x
 
 def build_network(network_name):
-    implemented_networks = ('resnet', 'VanillaCNN', 'UNet', 'CRNN', 'LG_LeNet', 'LG_LeNet_Autoencoder')
+    implemented_networks = ('resnet', 'VanillaCNN', 'UNet', 'CRNN', 'LG_1DCNN', 'LG_LeNet', 'LG_LeNet_Autoencoder')
     assert network_name in implemented_networks, 'invaliad network name'
     network = {
         'resnet': Resnet(),
@@ -260,5 +300,6 @@ def build_network(network_name):
         'CRNN': CRNN(),
         'LG_LeNet': LG_LeNet(),
         'LG_LeNet_Autoencoder': LG_LeNet_Autoencoder(),
+        'LG_1DCNN': LG_1DCNN(),
     }.get(network_name)
     return network
