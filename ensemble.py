@@ -27,7 +27,7 @@ class EnsembleNetwork(nn.Module):
         # Load weights for non-anomaly detectors
         self.resnet.load_state_dict(torch.load('/workspace/demon/resnet_random700-Copy1.pt'))
         self.crnn.load_state_dict(torch.load('/workspace/demon/crnn_random700-Copy1.pt'))
-        #self.unet.load(torch.load())
+        self.unet.load(torch.load())
 
         # Load weights for anomaly detectors
         #self.deep_sad_normal.load(torch.load())

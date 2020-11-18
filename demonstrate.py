@@ -114,8 +114,6 @@ class DemonstrateDataset(Dataset):
 
     def __getitem__(self, index):
         data = self.data[index]
-
-        curr_data = None
         data[2] = int(data[2][1])
         curr_data = np.array(data, dtype=np.float32)
         curr_X = curr_data[1:]
@@ -159,8 +157,6 @@ class DemonstrateTester:
         y_true = []
         y_pred = []
         for i, data in enumerate(test_loader):
-            if i == 10:
-                break
             x, y, *_ = data
             y = y.float()
 
@@ -173,6 +169,7 @@ class DemonstrateTester:
             y_true.append(int(y.data.cpu().item()))
             y_pred.append(y_hat_rounded)
 
+        print('y_true: {}, y_pred: {}'.format(y_true, y_pred))
         cm = confusion_matrix(y_true, y_pred, labels=[1, 0])
         print('Confusion Matrix:')
         print(cm)
