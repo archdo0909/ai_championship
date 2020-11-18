@@ -34,10 +34,12 @@ def predict_supervised(model_path, data_path):
         
         #label
         label_true.append(int(line[0]))
+
         # data
         line = line[1:].strip().split('\t')
         line[1] = int(line[1][1])
         data = np.array(line, dtype=np.float32)
+
         # preprocess each line
         freqs_image = preprocess(data)
         # freqs_image = preprocess_spectrogram(data) # for spectrogram
@@ -59,8 +61,6 @@ def predict_supervised(model_path, data_path):
     # ploting confusion matrix
     matrix = confusion_matrix(label_true, label_pred)
     print('confusion matrix : ', matrix)
-
-
 
     total=sum(sum(matrix))
     #####from confusion matrix calculate accuracy

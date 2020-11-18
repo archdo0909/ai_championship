@@ -8,6 +8,8 @@ import logging
 import numpy as np
 import torch.nn as nn
 
+from sklearn.metrics import confusion_matrix
+
 from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
 
@@ -128,7 +130,7 @@ class DemonstrateDataset(Dataset):
 class DemonstrateTester:
 
     def __init__(
-        self, batch_size=128, device='cuda', n_jobs_dataloader=4
+        self, batch_size=1, device='cuda', n_jobs_dataloader=4
     ):
         self.batch_size = batch_size
         self.device = device
@@ -146,38 +148,43 @@ class DemonstrateTester:
 
         # Set device for network
         net = net.to(self.device)
-
-        criterion = nn.BCELoss()
+        net.eval()
 
         # Testing
-        logger.info('Starting testing...')
+        logger.info('Start demonstration... god please...')
         start_time = time.time()
 
-        net.eval()
-        for epoch in range(1):
-            epoch_loss = 0.0
-            epoch_start_time = time.time()
-            for data in test_loader:
-                inputs, targets, *_, = data
-                targets = targets.float()
-                inputs = inputs.to(self.device)
-                targets = targets.to(self.device)
+        y_true = []
+        y_pred = []
+        for data in test_loader:
+            x, y, *_ = data
+            y = y.float()
 
-                outputs = net(inputs)
+            x = x.to(self.device)
+            y = y.to(self.device)
 
-                loss = criterion(outputs, targets)
-                epoch_loss += loss.item()
+            y_hat = net(x).squeeze()
+            y_hat_rounded = round(y_hat.data.cpu().item(), 0)
 
-            # log epoch statistics
-            epoch_test_time = time.time() - epoch_start_time
-            logger.info(
-                f'| Epoch: {epoch + 1:03} '
-                f'| Test Time: {epoch_test_time:.3f}s '
-                f'| Test Loss: {epoch_loss:.6f} |'
-            )
+            y_true.append(y)
+            y_pred.append(y_hat_rounded)
+        
+        cm = confusion_matrix(y_true, y_pred)
+        tn, fp, fn, tp = cm.ravel()
+
+        precision = tp / (tp + fp)
+        recall = tp / (tp + fn)
+        specificity = tn / (tn + fp)
+        f1_score = 2*precision*recall / (precision+recall)
+
+        print('confusion_matrix:')
+        print(cm)
+        print('Precision: {}, Recall: {}, Specificity: {}, F1-Score: {}'.format(
+            precision, recall, specificity, f1_score
+        ))
 
         time_taken = time.time() - start_time
-        logger.info('Testing Time: {:.3f}s'.format(time_taken))
+        logger.info('Time taken for making prediction: {:.3f}s'.format(time_taken))
         logger.info('Finished testing.')
 
 
