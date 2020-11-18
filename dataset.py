@@ -3,6 +3,7 @@ from pathlib import Path
 from torch.utils.data import Dataset
 from sklearn.model_selection import train_test_split
 from preprocessing import preprocess
+from preprocessing import preprocess_spectrogram
 import os
 import re
 import torch
@@ -160,6 +161,57 @@ class SupervisedDataset(Dataset):
     def __getitem__(self, index):
         curr_X = self.X_[index]
         image_reshaped = preprocess(curr_X)
+        tensor_image = torch.tensor(image_reshaped, dtype=torch.float32)
+        return tensor_image, self.y_[index]
+
+    def __len__(self):
+        return len(self.X_)
+
+
+class DemonstrateDataset(Dataset):
+
+    def __init__(self, root, dataset_name=None, train=True, random_state=42, stage_n_degc=True):
+        super(Dataset, self).__init__()
+        datafile = root
+
+        data_text = []
+        with open(datafile, "r") as f:
+            for i, line in enumerate(f.readlines()):
+                if not i:
+                    continue
+                temp = line.strip().split('\t')
+                temp[2] = temp[2][1]
+                data_text.append(temp)
+                if i == 10:
+                    break
+        data_np = np.array(data_text, dtype=np.float32)
+        X = data_np[:, 1:]
+        y = np.int32(data_np[:, 0])
+        
+        # Split train and test
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, test_size=0.2, random_state=42
+        )
+
+        # Split train and validation
+        X_train, X_val, y_train, y_val = train_test_split(
+            X_train, y_train, test_size=0.2, random_state=42
+        )
+
+        if train:
+            self.X_ = X_train
+            self.y_ = y_train
+        else:
+            self.X_ = X_test
+            self.y_ = y_test
+        
+        self.X_ = X
+        self.y_ = y
+
+    def __getitem__(self, index):
+        curr_X = self.X_[index]
+        image_reshaped = preprocess_spectrogram(curr_X)
+        print(image_reshaped.shape)
         tensor_image = torch.tensor(image_reshaped, dtype=torch.float32)
         return tensor_image, self.y_[index]
 
