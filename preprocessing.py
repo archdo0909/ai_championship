@@ -33,7 +33,7 @@ def preprocess_spectrogram(curr_X):
     # curr_X: datetime, stage, temperature
     freqs = curr_X[3:-1]
     freqs_image = spec_array(freqs) # shape : (3,100,100)
-    shape = (100,100)
+    _, *shape = freqs_image.shape
 
     time_str = str(int(curr_X[0]))
     month = int(time_str[3:5])
@@ -59,7 +59,7 @@ def preprocess_spectrogram(curr_X):
     return freqs_image
 
 def spec_array(arr):
-    plt.rcParams["figure.figsize"] = (1,1)
+    plt.rcParams["figure.figsize"] = (0.5, 0.5)
     plt.axis('off') # "invisable" axis in plot
     plt.xticks([]), plt.yticks([])
     plt.use_sticky_edges = True
