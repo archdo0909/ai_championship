@@ -35,7 +35,7 @@ def split_data(data_dir):
                     with open(normal_data_fpath, 'a') as f_normal:
                         f_normal.write(line)
                         normal += 1
-                else:
+                elif line[0] == '1':                    
                     with open(abnormal_data_fpath, 'a') as f_abnormal:
                         f_abnormal.write(line)
                     abnormal += 1
@@ -192,5 +192,5 @@ class DemonstrateTester:
 if __name__ == '__main__':
     # e.g. /workspace/demon/testdir
     split_data('/workspace/test1')
-    preprocess_data()
-    make_prediction('/workspace/demon')
+    # preprocess_data()
+    # make_prediction('/workspace/demon')
