@@ -5,8 +5,6 @@ def preprocess(curr_X):
     # curr_X: datetime, stage, temperature
     freqs = curr_X[3:-1]
     freqs_image = freqs.reshape(100, -1)
-    print('freqs_image shape : ', freqs_image.shape)
-    
 
     time_str = str(int(curr_X[0]))
     month = int(time_str[3:5])
@@ -59,7 +57,6 @@ def preprocess_spectrogram(curr_X):
     freqs_image = np.concatenate((freqs_image, hour_channel), axis=0)
     freqs_image = np.concatenate((freqs_image, stage_channel), axis=0)
     freqs_image = np.concatenate((freqs_image, temperature_channel), axis=0)
-    print('freqs_image shape : ', freqs_image.shape)
     return freqs_image
 
 def spec_array(arr):
@@ -76,7 +73,6 @@ def spec_array(arr):
     # Now we can save it to a numpy array.
     data = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8, sep='')
     data = data.reshape((3,) + fig.canvas.get_width_height()[::-1])
-    print('spec_array shape : ', data.shape)
     return data
 
 def create_semisupervised_setting(labels, normal_classes, outlier_classes, known_outlier_classes,

@@ -22,12 +22,12 @@ class EnsembleNetwork(nn.Module):
         self.deep_sad_abnormal = None
 
         # Init models list
-        self.models = [self.resnet, self.crnn]
+        self.models = [self.resnet, self.crnn, self.unet]
 
         # Load weights for non-anomaly detectors
-        self.resnet.load_state_dict(torch.load('/workspace/demon/resnet_random700-Copy1.pt'))
-        self.crnn.load_state_dict(torch.load('/workspace/demon/crnn_random700-Copy1.pt'))
-        self.unet.load(torch.load())
+        self.resnet.load_state_dict(torch.load('/workspace/demon/resnet_random700_spectrogram.pt'))
+        self.crnn.load_state_dict(torch.load('/workspace/demon/crnn_random700_spectrogram.pt'))
+        self.unet.load_state_dict(torch.load('/workspace/demon/unet_random700_spectrogram.pt'))
 
         # Load weights for anomaly detectors
         #self.deep_sad_normal.load(torch.load())
@@ -48,9 +48,9 @@ class EnsembleNetwork(nn.Module):
         # if not in a consensus, try non-anomaly detectors
         result_resnet = self.resnet.forward(x)
         result_crnn = self.crnn.forward(x)
-        #result_unet = self.unet.forward(x)
+        result_unet = self.unet.forward(x)
         
-        return (result_resnet + result_crnn) / 2
+        return (result_resnet + result_crnn) / 3
 
 
 if __name__ == '__main__':

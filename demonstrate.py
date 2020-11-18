@@ -16,6 +16,7 @@ from torch.utils.data import DataLoader
 
 from ensemble import EnsembleNetwork
 
+from preprocessing import preprocess_spectrogram
 
 # (1) 다운로드한 데이터(폴더)에서 정상과 불량 데이터 분리
 def split_data(data_dir):
@@ -119,7 +120,7 @@ class DemonstrateDataset(Dataset):
         curr_X = curr_data[1:]
         curr_Y = np.int32(curr_data[0])
 
-        curr_X_augmented = preprocess_data(curr_X)
+        curr_X_augmented = preprocess_spectrogram(curr_X)
         tensor_image = torch.tensor(curr_X_augmented, dtype=torch.float32)
         return tensor_image, curr_Y
 
@@ -157,6 +158,9 @@ class DemonstrateTester:
         y_true = []
         y_pred = []
         for i, data in enumerate(test_loader):
+            if i % 50 == 0:
+                print('Current test index:', i)
+                
             x, y, *_ = data
             y = y.float()
 
