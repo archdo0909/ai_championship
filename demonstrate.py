@@ -25,6 +25,7 @@ def split_data(data_dir):
     # num_extract_normal = 1000
     normal_data_fpath = os.path.join('/workspace/demon', 'normal.txt')
     abnormal_data_fpath = os.path.join('/workspace/demon', 'abnormal.txt')
+    demonstration_data = os.path.join('/workspace/demon', 'demonstration_data.txt')
 
     file_list = glob(data_dir + '/*.txt')
     for filepath in file_list:
@@ -32,10 +33,14 @@ def split_data(data_dir):
         with open(filepath, mode='r') as f:
             for i, line in enumerate(f):
                 if line[0] == '0':
+                    with open(demonstration_data, 'a') as f_all:
+                        f_all.write(line)
                     with open(normal_data_fpath, 'a') as f_normal:
                         f_normal.write(line)
                         normal += 1
-                elif line[0] == '1':                    
+                elif line[0] == '1':
+                    with open(demonstration_data, 'a') as f_all:
+                        f_all.write(line)                
                     with open(abnormal_data_fpath, 'a') as f_abnormal:
                         f_abnormal.write(line)
                     abnormal += 1
