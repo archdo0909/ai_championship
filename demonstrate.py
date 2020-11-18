@@ -43,29 +43,7 @@ def split_data(data_dir):
                         f_abnormal.write(line)
                     abnormal += 1
     print(f'정상 데이터 : {normal} 개, 불량 데이터 {abnormal} 개')
-
-
-    # if os.path.isfile(normal_data_fpath):
-    #     print('normal.txt already exists, removing this file...')
-    #     os.remove(normal_data_fpath)
-    # if os.path.isfile(abnormal_data_fpath):
-    #     print('abnormal.txt already exists, removing this file...')
-    #     os.remove(abnormal_data_fpath)
-
-    # testdata_dir = '/workspace/lg_train_test'
-    # data_fpaths = [os.path.join(testdata_dir, fname) for fname in os.listdir(data_dir) if fname.endswith('.txt')]
-    # for data_fpath in data_fpaths:
-    #     with open(data_fpath, 'r') as f:
-    #         # TODO: read line by line
-    #         for line in f.readlines():
-    #             print(line[:10])
-    #             break
-
-    #     with open(normal_data_fpath, 'a') as nf:
-    #         nf.write()
-    #     with open(abnormal_data_fpath, 'a') as af:
-    #         af.write()
-
+    
 
 # (2) 위에서 저장된 데이터에 대하여 데이터 전처리 실행 및 저장
 def preprocess_data(curr_X=None):
