@@ -159,13 +159,14 @@ class DemonstrateTester:
             print(cm)
 
             tn, fp, fn, tp = cm.ravel()
+            accuracy = (tp + tn) / (tp + tn + fp + fn)
             precision = tp / (tp + fp)
             recall = tp / (tp + fn)
             specificity = tn / (tn + fp)
             f1_score = 2*precision*recall / (precision+recall)
             balanced_accuracy = (recall + specificity) / 2
-            print('Precision: {}, Recall: {}, Specificity: {}, F1-Score: {}, Balanced Accuracy: {}'.format(
-                precision, recall, specificity, f1_score, balanced_accuracy
+            print('Accuracy: {}, Precision: {}, Recall: {}, Specificity: {}, F1-Score: {}, Balanced Accuracy: {}'.format(
+                accuracy, precision, recall, specificity, f1_score, balanced_accuracy
             ))
 
             time_taken = time.time() - start_time
@@ -176,5 +177,5 @@ class DemonstrateTester:
 if __name__ == '__main__':
     datadir = '/workspace/demon'
     datafile = 'sampled_final.txt'
-    logfile = 'final_log_temp.txt'
+    logfile = 'final_log.txt'
     make_prediction(datadir, datafile, logfile)
