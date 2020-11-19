@@ -6,6 +6,7 @@ import torch
 import logging
 
 from glob import glob
+
 import numpy as np
 import torch.nn as nn
 
@@ -51,7 +52,7 @@ def preprocess_data(curr_X=None):
     return freqs_image
 
 
-def make_prediction(data_dir=None):
+def make_prediction(data_dir=None, data_file=None):
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
@@ -65,7 +66,7 @@ def make_prediction(data_dir=None):
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
 
-    test_set = DemonstrateDataset(data_dir)
+    test_set = DemonstrateDataset(data_dir, data_file)
     demon_tester = DemonstrateTester()
     
     # Ensemble Pretrained Models
@@ -77,10 +78,10 @@ def make_prediction(data_dir=None):
 class DemonstrateDataset(Dataset):
 
     def __init__(
-        self, datadir
+        self, datadir, datafile
     ):
         super(Dataset, self).__init__()
-        datafile = os.path.join(datadir, 'normal_100.txt')
+        datafile = os.path.join(datadir, datafile)
         with open(datafile, "r") as f:
             self.data = [line.strip().split('\t') for line in f.readlines()]
 
@@ -102,7 +103,7 @@ class DemonstrateDataset(Dataset):
 class DemonstrateTester:
 
     def __init__(
-        self, batch_size=1, device='cuda', n_jobs_dataloader=4
+        self, batch_size=1, device='cuda', n_jobs_dataloader=6
     ):
         self.batch_size = batch_size
         self.device = device
@@ -123,14 +124,14 @@ class DemonstrateTester:
         net.eval()
 
         # Testing
-        logger.info('Start demonstration... god please...')
+        logger.info('Start demonstration...')
         start_time = time.time()
 
         y_true = []
         y_pred = []
         for i, data in enumerate(test_loader):
-            if i % 50 == 0:
-                print('Current test index:', i)
+            if i % 100 == 0:
+                print('Current test index:', i, time.time() - start_time)
                 
             x, y, *_ = data
             y = y.float()
@@ -169,4 +170,6 @@ class DemonstrateTester:
 
 
 if __name__ == '__main__':
-    make_prediction('/workspace/demon')
+    datadir = '/workspace/demon'
+    datafile = 'normal_100.txt'
+    make_prediction(datadir, datafile)

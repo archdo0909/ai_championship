@@ -28,11 +28,11 @@ class EnsembleNetwork(nn.Module):
 
         # Load weights for non-anomaly detectors
         self.resnet.load_state_dict(torch.load('/workspace/demon/resnet_random700_spectrogram.pt'))
-        self.crnn.load_state_dict(torch.load('/workspace/demon/crnn_random700_spectrogram.pt'))
-        self.unet.load_state_dict(torch.load('/workspace/demon/unet_random700_spectrogram.pt'))
+        #self.crnn.load_state_dict(torch.load('/workspace/demon/crnn_random700_spectrogram.pt'))
+        #self.unet.load_state_dict(torch.load('/workspace/demon/unet_random700_spectrogram.pt'))
 
         # Load DeepSAD Normal
-        model_dict_normal = torch.load('/workspace/demon/deepSAD_1117_7k_10ep_64batch_normal.tar')
+        model_dict_normal = torch.load('/workspace/demon/deepSAD_1117_7k_10ep_64batch_normal_flip.tar')
         self.c_normal = model_dict_normal["c"]
         self.deep_sad_normal.load_state_dict(model_dict_normal["net_dict"])
 
@@ -64,7 +64,6 @@ class EnsembleNetwork(nn.Module):
             return score_sad_normal
         
         # If not in consensus, try dual class classifiers
-        #print('xyshape:', x.shape, x.item().shape)
         x_np = x.cpu().detach().numpy().squeeze()
         x_in_img = preprocess_spectrogram(x_np)
         x_in_img = x_in_img[None, :, :, :]
@@ -72,11 +71,10 @@ class EnsembleNetwork(nn.Module):
         result_resnet = self.resnet.forward(x_in_tensor)
 
         result_resnet = 1 if float(result_resnet) > 0.0001 else 0
-        #print('DOES THIS WORK?', x_in_tensor.shape)
-        #result_crnn = self.crnn.forward(x_in_tensor)
-        #result_unet = self.unet.forward(x_in_tensor)
-        
-        return result_resnet
+        result_crnn = self.crnn.forward(x_in_tensor)
+        result_unet = self.unet.forward(x_in_tensor)
+        overall_result = 1 if float(result_resnet*0.8 + result_crnn*0.1 + result_unet*0.1) else 0
+        return overall_result
 
 
 if __name__ == '__main__':
