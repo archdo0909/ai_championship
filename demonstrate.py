@@ -52,7 +52,7 @@ def preprocess_data(curr_X=None):
     return freqs_image
 
 
-def make_prediction(data_dir=None, data_file=None):
+def make_prediction(data_dir=None, data_file=None, logfile=None):
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
@@ -60,7 +60,7 @@ def make_prediction(data_dir=None, data_file=None):
         '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
     # WHERE THE LOG IS SAVED
-    log_file = os.path.join('/workspace/demon', 'final_log.txt')
+    log_file = os.path.join(data_dir, logfile)
     file_handler = logging.FileHandler(log_file)
     file_handler.setLevel(logging.INFO)
     file_handler.setFormatter(formatter)
@@ -172,4 +172,5 @@ class DemonstrateTester:
 if __name__ == '__main__':
     datadir = '/workspace/demon'
     datafile = 'normal_100.txt'
-    make_prediction(datadir, datafile)
+    logfile = 'final_log_temp.txt'
+    make_prediction(datadir, datafile, logfile)
