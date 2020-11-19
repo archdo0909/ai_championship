@@ -52,16 +52,16 @@ class EnsembleNetwork(nn.Module):
         x_in_vec = torch.tensor(x[0, 3:-1], dtype=torch.float32, device='cuda')
 
         # Make prediction for DeepSAD models
-        output_sad_normal = self.deep_sad_normal.forward(x_in_vec)
-        distance_sad_normal = torch.sum((output_sad_normal - self.c_normal) ** 2, dim=1)
-        score_sad_normal = round(torch.sqrt(distance_sad_normal).item())
+        #output_sad_normal = self.deep_sad_normal.forward(x_in_vec)
+        #distance_sad_normal = torch.sum((output_sad_normal - self.c_normal) ** 2, dim=1)
+        #score_sad_normal = round(torch.sqrt(distance_sad_normal).item())
 
-        output_sad_abnormal = self.deep_sad_abnormal.forward(x_in_vec)
-        distance_sad_abnormal = torch.sum((output_sad_abnormal - self.c_abnormal) ** 2, dim=1)
-        score_sad_abnormal = round(torch.sqrt(distance_sad_abnormal).item())
+        #output_sad_abnormal = self.deep_sad_abnormal.forward(x_in_vec)
+        #distance_sad_abnormal = torch.sum((output_sad_abnormal - self.c_abnormal) ** 2, dim=1)
+        #score_sad_abnormal = round(torch.sqrt(distance_sad_abnormal).item())
 
-        if score_sad_normal == score_sad_abnormal:
-            return score_sad_normal
+        #if score_sad_normal == score_sad_abnormal:
+        #    return score_sad_normal
         
         # If not in consensus, try dual class classifiers
         x_np = x.cpu().detach().numpy().squeeze()
@@ -69,21 +69,9 @@ class EnsembleNetwork(nn.Module):
         x_in_img = x_in_img[None, :, :, :]
         x_in_tensor = torch.tensor((x_in_img), dtype=torch.float32, device='cuda')
         result_resnet = self.resnet.forward(x_in_tensor)
-
         result_resnet = 1 if float(result_resnet) > 0.0001 else 0
-        result_crnn = self.crnn.forward(x_in_tensor)
-        result_unet = self.unet.forward(x_in_tensor)
-        overall_result = 1 if float(result_resnet * 0.8 + result_crnn * 0.1 + result_unet * 0.1) else 0
-        return overall_result
-
-
-if __name__ == '__main__':
-    # Create ensemble model
-    model = EnsembleNetwork()
-
-    # TODO: Load an actual input
-    x = torch.randn(1, 5, 100, 100)
-
-    # Make prediction
-    output = model(x)
-    print(output)
+        #result_crnn = self.crnn.forward(x_in_tensor)
+        #result_unet = self.unet.forward(x_in_tensor)
+        #overall_result = 1 if float(result_resnet * 0.8 + result_crnn * 0.1 + result_unet * 0.1) else 0
+        #return overall_result
+        return result_resnet

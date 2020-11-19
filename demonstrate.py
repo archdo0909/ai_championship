@@ -129,48 +129,52 @@ class DemonstrateTester:
 
         y_true = []
         y_pred = []
-        for i, data in enumerate(test_loader):
-            if i % 100 == 0:
-                print('Current test index:', i, time.time() - start_time)
-                
-            x, y, *_ = data
-            y = y.float()
 
-            x = x.to(self.device)
-            y = y.to(self.device)
+        try:
+            for i, data in enumerate(test_loader):
+                if i % 100 == 0:
+                    print('Current test index:', i, time.time() - start_time)
+                    
+                x, y, *_ = data
+                y = y.float()
 
-            y_hat = net(x)
-            if not isinstance(y_hat, int):
-                y_hat = y_hat.squeeze()
-                y_hat_rounded = round(y_hat.data.cpu().item())
-            else:
-                y_hat_rounded = round(y_hat)
+                x = x.to(self.device)
+                y = y.to(self.device)
 
-            y_true.append(int(y.data.cpu().item()))
-            y_pred.append(y_hat_rounded)
+                y_hat = net(x)
+                if not isinstance(y_hat, int):
+                    y_hat = y_hat.squeeze()
+                    y_hat_rounded = round(y_hat.data.cpu().item())
+                else:
+                    y_hat_rounded = round(y_hat)
 
-        #print('y_true: {}, y_pred: {}'.format(y_true, y_pred))
-        cm = confusion_matrix(y_true, y_pred, labels=[1, 0])
-        print('Confusion Matrix:')
-        print(cm)
+                y_true.append(int(y.data.cpu().item()))
+                y_pred.append(y_hat_rounded)
+        except KeyboardInterrupt:
+            pass
+        finally:
+            #print('y_true: {}, y_pred: {}'.format(y_true, y_pred))
+            cm = confusion_matrix(y_true, y_pred, labels=[1, 0])
+            print('Confusion Matrix:')
+            print(cm)
 
-        tn, fp, fn, tp = cm.ravel()
-        precision = tp / (tp + fp)
-        recall = tp / (tp + fn)
-        specificity = tn / (tn + fp)
-        f1_score = 2*precision*recall / (precision+recall)
-        balanced_accuracy = (recall + specificity) / 2
-        print('Precision: {}, Recall: {}, Specificity: {}, F1-Score: {}, Balanced Accuracy: {}'.format(
-            precision, recall, specificity, f1_score, balanced_accuracy
-        ))
+            tn, fp, fn, tp = cm.ravel()
+            precision = tp / (tp + fp)
+            recall = tp / (tp + fn)
+            specificity = tn / (tn + fp)
+            f1_score = 2*precision*recall / (precision+recall)
+            balanced_accuracy = (recall + specificity) / 2
+            print('Precision: {}, Recall: {}, Specificity: {}, F1-Score: {}, Balanced Accuracy: {}'.format(
+                precision, recall, specificity, f1_score, balanced_accuracy
+            ))
 
-        time_taken = time.time() - start_time
-        logger.info('Time taken for making prediction: {:.3f}s'.format(time_taken))
-        logger.info('Finished demonstration.')
+            time_taken = time.time() - start_time
+            logger.info('Time taken for making prediction: {:.3f}s'.format(time_taken))
+            logger.info('Finished demonstration.')
 
 
 if __name__ == '__main__':
     datadir = '/workspace/demon'
-    datafile = 'normal_100.txt'
+    datafile = 'sampled_final.txt'
     logfile = 'final_log_temp.txt'
     make_prediction(datadir, datafile, logfile)
