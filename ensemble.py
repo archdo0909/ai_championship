@@ -69,11 +69,13 @@ class EnsembleNetwork(nn.Module):
         x_in_img = preprocess_spectrogram(x_np)
         x_in_tensor = torch.tensor(x_in_img, dtype=torch.float32, device='cuda')
         result_resnet = self.resnet.forward(x_in_tensor)
-        print('DOES THIS WORK?', x_in_tensor.shape)
-        result_crnn = self.crnn.forward(x_in_tensor)
-        result_unet = self.unet.forward(x_in_tensor)
+
+        result_resnet = 1 if float(result_resnet) > 0.0001 else 0
+        #print('DOES THIS WORK?', x_in_tensor.shape)
+        #result_crnn = self.crnn.forward(x_in_tensor)
+        #result_unet = self.unet.forward(x_in_tensor)
         
-        return (result_resnet + result_crnn + result_unet) / 3
+        return result_resnet
 
 
 if __name__ == '__main__':
