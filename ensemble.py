@@ -24,10 +24,10 @@ class EnsembleNetwork(nn.Module):
         self.deep_sad_abnormal = LG_1DCNN()
 
         # Init models list
-        self.models = [self.resnet, self.crnn, self.unet]
+        self.models = [self.resnet, self.crnn, self.unet, self.deep_sad_normal, self.deep_sad_abnormal]
 
         # Load weights for non-anomaly detectors
-        self.resnet.load_state_dict(torch.load('/workspace/demon/resnet_random700_spectrogram.pt'))
+        self.resnet.load_state_dict(torch.load('/workspace/jinsung/resnet_final-Copy1js.pt'))
         #self.crnn.load_state_dict(torch.load('/workspace/demon/crnn_random700_spectrogram.pt'))
         #self.unet.load_state_dict(torch.load('/workspace/demon/unet_random700_spectrogram.pt'))
 
@@ -73,7 +73,7 @@ class EnsembleNetwork(nn.Module):
         result_resnet = 1 if float(result_resnet) > 0.0001 else 0
         result_crnn = self.crnn.forward(x_in_tensor)
         result_unet = self.unet.forward(x_in_tensor)
-        overall_result = 1 if float(result_resnet*0.8 + result_crnn*0.1 + result_unet*0.1) else 0
+        overall_result = 1 if float(result_resnet * 0.8 + result_crnn * 0.1 + result_unet * 0.1) else 0
         return overall_result
 
 
